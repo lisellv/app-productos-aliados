@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Descargar el código
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Iniciar sesión en ghcr.io
         uses: docker/login-action@v3
