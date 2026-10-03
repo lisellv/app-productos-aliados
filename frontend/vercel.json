@@ -1,0 +1,12 @@
+{
+"rewrites": [
+{
+"source": "/api/:path*",
+"destination": "https://app-productos-aliados.onrender.com/api/:path*"
+},
+{
+"source": "/(.*)",
+"destination": "/home.html"
+}
+]
+}
