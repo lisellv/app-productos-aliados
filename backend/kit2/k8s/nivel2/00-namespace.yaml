@@ -1,0 +1,6 @@
+# Todo el kit vive en su propio namespace: se borra completo con
+#   kubectl delete namespace kit2
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kit2

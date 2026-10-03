@@ -1,0 +1,85 @@
+# =====================================================================
+# MySQL 8.0 (muy usada; sin soporte oficial desde abril 2026)  ·  dificultad: básica
+# ---------------------------------------------------------------------
+# Elige UNA de estas tres formas de encenderlo (desde la carpeta bases-de-datos):
+#
+#   1) Solo la base de datos (tu backend corre en IntelliJ / ./gradlew bootRun):
+#        docker compose -f mysql-8.0.yml up -d db adminer
+#
+#   2) Base de datos + backend descargado de GitHub (ghcr.io):
+#        docker compose -f mysql-8.0.yml up -d
+#
+#   3) Base de datos + backend construido desde tu código:
+#        docker compose -f mysql-8.0.yml -f backend-local.yml up -d --build
+#
+# Apagar (los datos se conservan):   docker compose -f mysql-8.0.yml down
+# Apagar y BORRAR los datos:         docker compose -f mysql-8.0.yml down -v
+# =====================================================================
+
+# Nombre del proyecto: prefijo de contenedores, red y volumen ("bd-mysql80_datos")
+name: bd-mysql80
+
+services:
+
+  # ------------------------------------------------------------------
+  # La base de datos
+  # ------------------------------------------------------------------
+  db:
+    image: mysql:8.0                     # motor:versión
+    environment:
+      MYSQL_ROOT_PASSWORD: root          # clave del administrador "root"
+      MYSQL_DATABASE: servicetechdb      # base que se crea al primer arranque
+      MYSQL_USER: app                    # usuario para tu backend...
+      MYSQL_PASSWORD: app                # ...con todos los permisos sobre servicetechdb
+      TZ: America/Lima                   # zona horaria del servidor
+    ports:
+      - "3306:3306"                      # "puerto de tu PC : puerto del contenedor"
+    volumes:
+      # Volumen con nombre: aquí viven los datos. Sobrevive a "down".
+      - datos:/var/lib/mysql
+      # Scripts .sql que se ejecutan SOLO la primera vez (volumen vacío)
+      - ./init/mysql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # 127.0.0.1 (y no localhost) obliga a usar la red: así el chequeo solo
+      # pasa cuando MySQL terminó de prepararse y acepta conexiones de verdad
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # ------------------------------------------------------------------
+  # Cliente web para ver tablas y datos: http://localhost:8081
+  # Sistema: MySQL · Servidor: db · Usuario: app · Clave: app
+  # ------------------------------------------------------------------
+  adminer:
+    image: adminer:4
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+
+  # ------------------------------------------------------------------
+  # Tu backend Spring Boot (imagen publicada en GitHub)
+  # La imagen se define en el archivo .env (BACKEND_IMAGE).
+  # Para construirla desde tu código agrega: -f backend-local.yml
+  # Requisito: tu backend debe incluir el driver com.mysql:mysql-connector-j
+  # ------------------------------------------------------------------
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/tu-usuario/tu-repo-backend:latest}
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/servicetechdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: app
+      SPRING_DATASOURCE_PASSWORD: app
+      JWT_SECRET: ${JWT_SECRET:-cambia-esta-clave-por-una-de-al-menos-32-caracteres-xyz}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  datos:

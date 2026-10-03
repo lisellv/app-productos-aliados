@@ -1,0 +1,54 @@
+# Frontend React servido por Nginx (sin privilegios, puerto 8080)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: kit2
+spec:
+  replicas: 2              # sin estado: se puede escalar libremente
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: kit2/frontend:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            # Destino del proxy /api: el Service "backend" del 20-backend.yaml
+            - name: BACKEND_URL
+              value: http://backend:8080
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 50m, memory: 32Mi }
+            limits:   { memory: 128Mi }
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: kit2
+spec:
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      nodePort: 30000

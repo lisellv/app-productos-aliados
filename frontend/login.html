@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financia .PE | Iniciar sesión</title>
+	<link rel="stylesheet" href="css/styles.css">
+	<script src="scripts/header.js" defer></script>
+	<script src="scripts/footer.js" defer></script>
+  <script src="scripts/config.js" defer></script>
+  <script src="scripts/api.js" defer></script>
+  <script src="scripts/login.js" defer></script>
+</head>
+<body>
+  <div class="page">
+    <div id="header"></div>
+
+    <main class="login-section">
+      <form class="login-form" id="loginForm">
+        <h1>Inicia sesión en tu cuenta</h1>
+
+        <label for="username">Usuario</label>
+        <input id="username" name="username" type="text" placeholder="Ingrese usuario" autocomplete="username" required>
+
+        <label for="password">Contraseña</label>
+        <input id="password" name="password" type="password" placeholder="Ingrese contraseña" autocomplete="current-password" required>
+
+        <button class="login-button" type="submit">Iniciar sesión</button>
+        <p id="loginMessage" role="status" aria-live="polite"></p>
+
+        <p class="create-account">
+          ¿Aún no tienes cuenta?
+          <a href="signout.html">Crea una cuenta</a>
+        </p>
+      </form>
+    </main>
+
+    <footer>
+      <div><h3>Oportunidades</h3><ul><li>Vehículos</li><li>Equipamiento</li><li>Inmuebles</li></ul></div>
+      <div><h3>Compañía</h3><ul><li>Quienes somos</li><li>Términos y condiciones</li><li>Privacidad</li></ul></div>
+      <div><h3>Conecta</h3><ul><li>Contáctanos</li><li>Facebook</li><li>Instagram</li></ul></div>
+      <div><h3>Suscríbete a nuestro boletín</h3><input type="email" placeholder="Tu correo electrónico"><button>Suscribirse</button></div>
+      <p class="copy">Todos los derechos reservados © Financia .PE</p>
+    </footer>
+  </div>
+
+</body>
+</html>

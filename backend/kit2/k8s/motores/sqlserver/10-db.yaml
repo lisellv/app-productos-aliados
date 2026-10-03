@@ -1,0 +1,95 @@
+# SQL Server 2022 como StatefulSet (reemplaza a nivel2/10-db.yaml).
+# Para SQL Server 2019 cambia la línea image por ...:2019-latest
+# Necesita unos 2 GB de memoria: revisa los recursos de Docker Desktop.
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: kit2
+  labels:
+    app: db
+spec:
+  clusterIP: None          # Service "headless", requerido por el StatefulSet
+  selector:
+    app: db
+  ports:
+    - name: mssql
+      port: 1433
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  namespace: kit2
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      securityContext:
+        fsGroup: 10001     # SQL Server corre con el usuario 10001: le da permiso sobre el volumen
+      containers:
+        - name: mssql
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - name: mssql
+              containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_PID
+              value: Developer
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: kit2-secret, key: DB_PASSWORD }
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef: { name: kit2-config, key: DB_NAME }
+          # SQL Server no crea la base solo. Apenas arranca el contenedor, este
+          # "gancho" reintenta hasta poder crearla (equivale a db-init del compose)
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/bash
+                  - -c
+                  - |
+                    for i in $(seq 1 60); do
+                      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -C -b \
+                        -Q "IF DB_ID('$DB_NAME') IS NULL CREATE DATABASE [$DB_NAME]" && exit 0
+                      sleep 2
+                    done
+                    exit 1
+          # Listo = la base de datos ya existe y responde. Mientras no esté
+          # lista, el Service "db" no la publica y el backend sigue esperando.
+          readinessProbe:
+            exec:
+              command: ["/bin/bash", "-c", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -C -b -d \"$DB_NAME\" -Q 'SELECT 1' -o /dev/null"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket: { port: mssql }
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 250m, memory: 2Gi }
+            limits:   { memory: 3Gi }
+          volumeMounts:
+            - name: data
+              mountPath: /var/opt/mssql
+              subPath: mssql
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi

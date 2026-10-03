@@ -1,0 +1,48 @@
+# =====================================================================
+# NIVEL 1 · Solo la base de datos
+# ---------------------------------------------------------------------
+# PostgreSQL corre en Docker; el backend y el frontend se ejecutan en tu
+# equipo (IntelliJ / ./gradlew bootRun / npm run dev).
+#
+#   docker compose -f nivel1-db.yml up -d
+#   docker compose -f nivel1-db.yml --profile herramientas up -d   # + Adminer
+#
+# Conexión desde tu backend local:
+#   jdbc:postgresql://localhost:5432/servicetechdb
+# =====================================================================
+name: kit2
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-servicetechdb}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Scripts .sql/.sh que se ejecutan SOLO la primera vez (volumen vacío)
+      - ./docker/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  # Cliente web para ver tablas y datos: http://localhost:8081
+  # Servidor: db · Usuario/clave: los de DB_USER / DB_PASSWORD
+  adminer:
+    image: adminer:4
+    profiles: ["herramientas"]
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

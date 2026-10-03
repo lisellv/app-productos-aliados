@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financia .PE | Productos</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="scripts/header.js" defer></script>
+  <script src="scripts/config.js" defer></script>
+  <script src="scripts/api.js" defer></script>
+  <script src="scripts/categories.js" defer></script>
+  <script src="scripts/footer.js" defer></script>
+</head>
+<body>
+  <div id="header"></div>
+  <div class="catalog">
+    <aside class="filtros">
+      <label>Filtrar por precio:</label>
+      <div class="fila-precios">
+        <input id="minPrice" type="number" placeholder="Mín">
+        <span>-</span>
+        <input id="maxPrice" type="number" placeholder="Máx">
+      </div>
+      <button id="botonFiltro" type="button">Filtrar productos</button>
+      <script>
+        const botonFiltro = document.querySelector('#botonFiltro');
+        botonFiltro.addEventListener('click', function filtroproductos() {
+          botonFiltro.classList.toggle('destacado');
+        });
+      </script>
+    </aside>
+
+    <section class="productos">
+      <div class="producto" precio-lista="85000">
+        <img src="img/categories/react.jpg" alt="Camión de carga 10 TN">
+        <h3>Camión de carga 10 TN</h3>
+        <p>S/ 85,000</p>
+        <div class="cantidad">
+          <button type="button">−</button>
+          <input type="number" value="0" min="0">
+          <button type="button">+</button>
+        </div>
+      </div>
+      <div class="producto" precio-lista="42000">
+        <img src="img/categories/javascript.jpg" alt="Camioneta de reparto">
+        <h3>Camioneta de reparto</h3>
+        <p>S/ 42,000</p>
+          <div class="cantidad">
+          <button type="button">−</button>
+          <input type="number" value="0" min="0">
+          <button type="button">+</button>
+        </div>
+      </div>
+      <div class="producto" precio-lista="6500">
+        <img src="img/categories/node.jpg" alt="Horno industrial para cocina">
+        <h3>Horno industrial para cocina</h3>
+        <p>S/ 6,500</p>
+        <div class="cantidad">
+          <button type="button">−</button>
+          <input type="number" value="0" min="0">
+          <button type="button">+</button>
+        </div>
+      </div>
+      <div class="producto" precio-lista="3200">
+        <img src="img/categories/typescript.jpg" alt="Set de utensilios de cocina">
+        <h3>Set de utensilios de cocina</h3>
+        <p>S/ 3,200</p>
+        <div class="cantidad">
+          <button type="button">−</button>
+          <input type="number" value="0" min="0">
+          <button type="button">+</button>
+        </div>
+      </div>
+      <div class="producto" precio-lista="420000">
+        <img src="img/categories/backend.jpg" alt="Departamento en San Isidro">
+        <h3>Departamento en San Isidro</h3>
+        <p>S/ 420,000</p>
+        <div class="cantidad">
+          <button type="button">−</button>
+          <input type="number" value="0" min="0">
+          <button type="button">+</button>
+        </div>
+      </div>
+      <div class="producto" precio-lista="180000">
+        <img src="img/categories/frontend.jpg" alt="Casa de campo en Lunahuaná">
+        <h3>Casa de campo en Lunahuaná</h3>
+        <p>S/ 180,000</p>
+        <div class="cantidad">
+          <button type="button">−</button>
+          <input type="number" value="0" min="0">
+          <button type="button">+</button>
+        </div>
+      </div>
+      <div class="producto" precio-lista="350000">
+        <img src="img/categories/fullstack.jpg" alt="Local comercial en Miraflores">
+        <h3>Local comercial en Miraflores</h3>
+        <p>S/ 350,000</p>
+        <div class="cantidad">
+          <button type="button">−</button>
+          <input type="number" value="0" min="0">
+          <button type="button">+</button>
+        </div>
+      </div>
+      <div class="producto" precio-lista="95000">
+        <img src="img/categories/feature.jpg" alt="Camión cisterna">
+        <h3>Camión cisterna</h3>
+        <p>S/ 95,000</p>
+        <div class="cantidad">
+          <button type="button">−</button>
+          <input type="number" value="0" min="0">
+          <button type="button">+</button>
+        </div>
+      </div>
+      <div class="producto" precio-lista="4800">
+        <img src="img/categories/machine.jpg" alt="Cocina industrial compacta">
+        <h3>Cocina industrial compacta</h3>
+        <p>S/ 4,800</p>
+        <div class="cantidad">
+          <button type="button">−</button>
+          <input type="number" value="0" min="0">
+          <button type="button">+</button>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div id="footer"></div>
+</body>
+</html>

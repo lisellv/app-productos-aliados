@@ -1,0 +1,11 @@
+-- Scripts de esta carpeta se ejecutan en orden alfabético SOLO cuando el
+-- volumen de datos está vacío (primer arranque).
+--
+-- Si tu backend usa Flyway, el esquema lo crea Flyway: deja este archivo
+-- así (solo comentarios) y no dupliques tablas aquí.
+--
+-- Úsalo para cosas fuera de Flyway, por ejemplo:
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+--
+-- Para que vuelva a ejecutarse:
+--   docker compose -f nivel1-db.yml down -v   (¡borra los datos!)

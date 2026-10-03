@@ -1,0 +1,31 @@
+# =====================================================================
+# NIVEL 3 · Base de datos + backend + frontend
+# ---------------------------------------------------------------------
+# Reutiliza el nivel 2 (que a su vez incluye el nivel 1) y agrega el
+# frontend compilado y servido por Nginx. Nginx reenvía /api al backend,
+# así el navegador ve un solo origen y no hace falta configurar CORS.
+#
+#   docker compose -f nivel3-full.yml up -d --build
+#   Abrir http://localhost:3000
+#
+# Requisito: Dockerfile, .dockerignore y carpeta nginx/ de docker/frontend
+# copiados en la raíz del repositorio del frontend (ver README).
+# =====================================================================
+name: kit2
+
+include:
+  - nivel2-db-backend.yml
+
+services:
+  frontend:
+    build:
+      context: ${FRONTEND_DIR:-../frontend}
+    image: kit2/frontend:1.0
+    environment:
+      # Destino del proxy /api en Nginx (nombre del servicio del nivel 2)
+      BACKEND_URL: http://backend:8080
+    ports:
+      - "${FRONTEND_PORT:-3000}:8080"
+    depends_on:
+      - backend
+    restart: unless-stopped

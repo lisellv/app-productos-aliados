@@ -1,0 +1,455 @@
+{
+  "info": {
+    "name": "Coleccion de APIS",
+    "description": "Autenticación y CRUD de las entidades de financiamiento (rol, usuario, aliado, cliente, categoria, producto, tipo_financiamiento, producto_financiamiento, campana, campana_producto, regla_precalificacion, lista_interes, solicitud_financiamiento, historial_solicitud, derivacion_banco).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "b6f2a2f0-financiamiento-collection"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "rolId", "value": "1" },
+    { "key": "aliadoId", "value": "1" },
+    { "key": "clienteId", "value": "1" },
+    { "key": "categoriaId", "value": "1" },
+    { "key": "productoId", "value": "1" },
+    { "key": "tipoFinanciamientoId", "value": "1" },
+    { "key": "productoFinanciamientoId", "value": "1" },
+    { "key": "usuarioId", "value": "1" },
+    { "key": "campanaId", "value": "1" },
+    { "key": "reglaPrecalificacionId", "value": "1" },
+    { "key": "listaInteresId", "value": "1" },
+    { "key": "solicitudId", "value": "1" },
+    { "key": "historialSolicitudId", "value": "1" },
+    { "key": "derivacionBancoId", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ]
+  },
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userName\": \"admin@financiamiento.pe\",\n  \"password\": \"admin\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": [ "{{baseUrl}}" ], "path": [ "api", "auth", "login" ] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.unset('token');",
+                  "if (pm.response.code !== 200) { throw new Error('Login falló: revisa las credenciales'); }",
+                  "let token = pm.response.text().trim();",
+                  "if (token.startsWith('\\\"') && token.endsWith('\\\"')) { token = JSON.parse(token).trim(); }",
+                  "const segments = token.split('.');",
+                  "if (segments.length !== 3 || segments.some(segment => !segment)) { throw new Error('La respuesta de login no contiene un JWT válido'); }",
+                  "pm.collectionVariables.set('token', token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Administración (legacy)",
+      "item": [
+        {
+          "name": "Crear usuario (in-memory auth)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userName\": \"nuevo.usuario\",\n  \"password\": \"Password123\",\n  \"roles\": [\"ADMIN\"]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/admin/user", "host": [ "{{baseUrl}}" ], "path": [ "api", "admin", "user" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        { "name": "Listar roles", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/roles", "host": [ "{{baseUrl}}" ], "path": [ "api", "roles" ] } } },
+        { "name": "Obtener rol", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/roles/{{rolId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "roles", "{{rolId}}" ] } } },
+        {
+          "name": "Crear rol",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombreRol\": \"administrador\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/roles", "host": [ "{{baseUrl}}" ], "path": [ "api", "roles" ] }
+          }
+        },
+        {
+          "name": "Actualizar rol",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombreRol\": \"aliado\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/roles/{{rolId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "roles", "{{rolId}}" ] }
+          }
+        },
+        { "name": "Eliminar rol", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/roles/{{rolId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "roles", "{{rolId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Aliados",
+      "item": [
+        { "name": "Listar aliados", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/aliados", "host": [ "{{baseUrl}}" ], "path": [ "api", "aliados" ] } } },
+        { "name": "Obtener aliado", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/aliados/{{aliadoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "aliados", "{{aliadoId}}" ] } } },
+        {
+          "name": "Crear aliado",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"numeroDocumento\": \"20123456789\",\n  \"razonSocial\": \"Comercial ABC S.A.C.\",\n  \"contactoNombre\": \"Juan Pérez\",\n  \"contactoCorreo\": \"contacto@abc.com\",\n  \"contactoTelefono\": \"999999999\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/aliados", "host": [ "{{baseUrl}}" ], "path": [ "api", "aliados" ] }
+          }
+        },
+        {
+          "name": "Actualizar aliado",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"razonSocial\": \"Comercial ABC S.A.C. (actualizado)\",\n  \"contactoNombre\": \"Juan Pérez\",\n  \"contactoCorreo\": \"contacto@abc.com\",\n  \"contactoTelefono\": \"999999998\",\n  \"estado\": \"activo\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/aliados/{{aliadoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "aliados", "{{aliadoId}}" ] }
+          }
+        },
+        { "name": "Eliminar aliado", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/aliados/{{aliadoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "aliados", "{{aliadoId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        { "name": "Listar usuarios", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/usuarios", "host": [ "{{baseUrl}}" ], "path": [ "api", "usuarios" ] } } },
+        { "name": "Obtener usuario", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/usuarios/{{usuarioId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "usuarios", "{{usuarioId}}" ] } } },
+        {
+          "name": "Crear usuario",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"rolId\": {{rolId}},\n  \"aliadoId\": {{aliadoId}},\n  \"correoElectronico\": \"usuario@alianzas.com\",\n  \"password\": \"Password123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/usuarios", "host": [ "{{baseUrl}}" ], "path": [ "api", "usuarios" ] }
+          }
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"rolId\": {{rolId}},\n  \"aliadoId\": {{aliadoId}},\n  \"correoElectronico\": \"usuario@alianzas.com\",\n  \"activo\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/usuarios/{{usuarioId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "usuarios", "{{usuarioId}}" ] }
+          }
+        },
+        { "name": "Eliminar usuario", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/usuarios/{{usuarioId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "usuarios", "{{usuarioId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        { "name": "Listar clientes", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/clientes", "host": [ "{{baseUrl}}" ], "path": [ "api", "clientes" ] } } },
+        { "name": "Obtener cliente", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/clientes/{{clienteId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "clientes", "{{clienteId}}" ] } } },
+        {
+          "name": "Crear cliente (natural)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"tipoPersona\": \"NATURAL\",\n  \"tipoDocumento\": \"DNI\",\n  \"numeroDocumento\": \"12345678\",\n  \"nombres\": \"María\",\n  \"apellidos\": \"López\",\n  \"correo\": \"maria.lopez@correo.com\",\n  \"telefono\": \"988888888\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/clientes", "host": [ "{{baseUrl}}" ], "path": [ "api", "clientes" ] }
+          }
+        },
+        {
+          "name": "Actualizar cliente",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"tipoPersona\": \"NATURAL\",\n  \"tipoDocumento\": \"DNI\",\n  \"numeroDocumento\": \"12345678\",\n  \"nombres\": \"María\",\n  \"apellidos\": \"López Vega\",\n  \"correo\": \"maria.lopez@correo.com\",\n  \"telefono\": \"988888887\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/clientes/{{clienteId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "clientes", "{{clienteId}}" ] }
+          }
+        },
+        { "name": "Eliminar cliente", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/clientes/{{clienteId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "clientes", "{{clienteId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Categorías",
+      "item": [
+        { "name": "Listar categorías", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/categorias", "host": [ "{{baseUrl}}" ], "path": [ "api", "categorias" ] } } },
+        { "name": "Obtener categoría", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/categorias/{{categoriaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "categorias", "{{categoriaId}}" ] } } },
+        {
+          "name": "Crear categoría",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Vehículos\",\n  \"descripcion\": \"Autos y camionetas\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/categorias", "host": [ "{{baseUrl}}" ], "path": [ "api", "categorias" ] }
+          }
+        },
+        {
+          "name": "Actualizar categoría",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Vehículos\",\n  \"descripcion\": \"Autos, camionetas y SUV\",\n  \"activo\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/categorias/{{categoriaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "categorias", "{{categoriaId}}" ] }
+          }
+        },
+        { "name": "Eliminar categoría", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/categorias/{{categoriaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "categorias", "{{categoriaId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Productos",
+      "item": [
+        { "name": "Listar productos", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/productos", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos" ] } } },
+        { "name": "Obtener producto", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/productos/{{productoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos", "{{productoId}}" ] } } },
+        {
+          "name": "Crear producto",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"aliadoId\": {{aliadoId}},\n  \"categoriaId\": {{categoriaId}},\n  \"nombre\": \"Toyota Yaris 2024\",\n  \"descripcion\": \"Vehículo sedán\",\n  \"precioLista\": 65000.00,\n  \"moneda\": \"PEN\",\n  \"incluyeIgv\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/productos", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos" ] }
+          }
+        },
+        {
+          "name": "Actualizar producto",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"categoriaId\": {{categoriaId}},\n  \"nombre\": \"Toyota Yaris 2024\",\n  \"descripcion\": \"Vehículo sedán full equipo\",\n  \"precioLista\": 67000.00,\n  \"incluyeIgv\": true,\n  \"estado\": \"activo\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/productos/{{productoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos", "{{productoId}}" ] }
+          }
+        },
+        { "name": "Eliminar producto", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/productos/{{productoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos", "{{productoId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Tipos de Financiamiento",
+      "item": [
+        { "name": "Listar tipos", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/tipos-financiamiento", "host": [ "{{baseUrl}}" ], "path": [ "api", "tipos-financiamiento" ] } } },
+        { "name": "Obtener tipo", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/tipos-financiamiento/{{tipoFinanciamientoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "tipos-financiamiento", "{{tipoFinanciamientoId}}" ] } } },
+        {
+          "name": "Crear tipo",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"codigo\": \"VEHICULAR\",\n  \"nombre\": \"Financiamiento vehicular\",\n  \"descripcion\": \"Financiamiento para adquisición de vehículos\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/tipos-financiamiento", "host": [ "{{baseUrl}}" ], "path": [ "api", "tipos-financiamiento" ] }
+          }
+        },
+        {
+          "name": "Actualizar tipo",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Financiamiento vehicular\",\n  \"descripcion\": \"Financiamiento para adquisición de vehículos nuevos y usados\",\n  \"activo\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/tipos-financiamiento/{{tipoFinanciamientoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "tipos-financiamiento", "{{tipoFinanciamientoId}}" ] }
+          }
+        },
+        { "name": "Eliminar tipo", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/tipos-financiamiento/{{tipoFinanciamientoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "tipos-financiamiento", "{{tipoFinanciamientoId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Productos de Financiamiento",
+      "item": [
+        { "name": "Listar", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/productos-financiamiento", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos-financiamiento" ] } } },
+        { "name": "Obtener", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/productos-financiamiento/{{productoFinanciamientoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos-financiamiento", "{{productoFinanciamientoId}}" ] } } },
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"productoId\": {{productoId}},\n  \"tipoFinanciamientoId\": {{tipoFinanciamientoId}},\n  \"tipoTasa\": \"TEA\",\n  \"tasaAnual\": 18.50,\n  \"plazoMinimoMeses\": 12,\n  \"plazoMaximoMeses\": 60,\n  \"montoMinimo\": 5000.00,\n  \"montoMaximo\": 80000.00,\n  \"vigenteDesde\": \"2026-01-01\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/productos-financiamiento", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos-financiamiento" ] }
+          }
+        },
+        {
+          "name": "Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"tipoTasa\": \"TEA\",\n  \"tasaAnual\": 17.90,\n  \"plazoMinimoMeses\": 12,\n  \"plazoMaximoMeses\": 60,\n  \"montoMinimo\": 5000.00,\n  \"montoMaximo\": 90000.00,\n  \"vigenteDesde\": \"2026-01-01\",\n  \"activo\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/productos-financiamiento/{{productoFinanciamientoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos-financiamiento", "{{productoFinanciamientoId}}" ] }
+          }
+        },
+        { "name": "Eliminar", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/productos-financiamiento/{{productoFinanciamientoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "productos-financiamiento", "{{productoFinanciamientoId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Campañas",
+      "item": [
+        { "name": "Listar campañas", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/campanas", "host": [ "{{baseUrl}}" ], "path": [ "api", "campanas" ] } } },
+        { "name": "Obtener campaña", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/campanas/{{campanaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "campanas", "{{campanaId}}" ] } } },
+        {
+          "name": "Crear campaña",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Campaña Verano 2026\",\n  \"descripcion\": \"Descuentos en vehículos\",\n  \"fechaInicio\": \"2026-01-01\",\n  \"fechaFin\": \"2026-03-31\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/campanas", "host": [ "{{baseUrl}}" ], "path": [ "api", "campanas" ] }
+          }
+        },
+        {
+          "name": "Actualizar campaña",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Campaña Verano 2026\",\n  \"descripcion\": \"Descuentos en vehículos y capital de trabajo\",\n  \"fechaInicio\": \"2026-01-01\",\n  \"fechaFin\": \"2026-04-30\",\n  \"estado\": \"activa\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/campanas/{{campanaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "campanas", "{{campanaId}}" ] }
+          }
+        },
+        { "name": "Eliminar campaña", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/campanas/{{campanaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "campanas", "{{campanaId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Campaña-Producto",
+      "item": [
+        { "name": "Listar", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/campana-producto", "host": [ "{{baseUrl}}" ], "path": [ "api", "campana-producto" ] } } },
+        { "name": "Obtener", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/campana-producto/{{campanaId}}/{{productoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "campana-producto", "{{campanaId}}", "{{productoId}}" ] } } },
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"campanaId\": {{campanaId}},\n  \"productoId\": {{productoId}},\n  \"beneficio\": \"2% de descuento\",\n  \"condicionesComerciales\": \"Aplica solo pago al contado\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/campana-producto", "host": [ "{{baseUrl}}" ], "path": [ "api", "campana-producto" ] }
+          }
+        },
+        {
+          "name": "Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"beneficio\": \"3% de descuento\",\n  \"condicionesComerciales\": \"Aplica para todo medio de pago\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/campana-producto/{{campanaId}}/{{productoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "campana-producto", "{{campanaId}}", "{{productoId}}" ] }
+          }
+        },
+        { "name": "Eliminar", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/campana-producto/{{campanaId}}/{{productoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "campana-producto", "{{campanaId}}", "{{productoId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Reglas de Precalificación",
+      "item": [
+        { "name": "Listar", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/reglas-precalificacion", "host": [ "{{baseUrl}}" ], "path": [ "api", "reglas-precalificacion" ] } } },
+        { "name": "Obtener", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/reglas-precalificacion/{{reglaPrecalificacionId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "reglas-precalificacion", "{{reglaPrecalificacionId}}" ] } } },
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"campanaId\": {{campanaId}},\n  \"edadMinima\": 18,\n  \"edadMaxima\": 70,\n  \"ingresoMinimo\": 1500.00,\n  \"montoMinimo\": 5000.00,\n  \"montoMaximo\": 80000.00,\n  \"plazoMinimoMeses\": 12,\n  \"plazoMaximoMeses\": 60\n}" },
+            "url": { "raw": "{{baseUrl}}/api/reglas-precalificacion", "host": [ "{{baseUrl}}" ], "path": [ "api", "reglas-precalificacion" ] }
+          }
+        },
+        {
+          "name": "Actualizar",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"edadMinima\": 21,\n  \"edadMaxima\": 70,\n  \"ingresoMinimo\": 1800.00,\n  \"montoMinimo\": 5000.00,\n  \"montoMaximo\": 90000.00,\n  \"plazoMinimoMeses\": 12,\n  \"plazoMaximoMeses\": 60,\n  \"activo\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/reglas-precalificacion/{{reglaPrecalificacionId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "reglas-precalificacion", "{{reglaPrecalificacionId}}" ] }
+          }
+        },
+        { "name": "Eliminar", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/reglas-precalificacion/{{reglaPrecalificacionId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "reglas-precalificacion", "{{reglaPrecalificacionId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Lista de Interés",
+      "item": [
+        { "name": "Listar", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/lista-interes", "host": [ "{{baseUrl}}" ], "path": [ "api", "lista-interes" ] } } },
+        { "name": "Obtener", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/lista-interes/{{listaInteresId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "lista-interes", "{{listaInteresId}}" ] } } },
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"productoId\": {{productoId}}\n}" },
+            "url": { "raw": "{{baseUrl}}/api/lista-interes", "host": [ "{{baseUrl}}" ], "path": [ "api", "lista-interes" ] }
+          }
+        },
+        { "name": "Eliminar", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/lista-interes/{{listaInteresId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "lista-interes", "{{listaInteresId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Solicitudes de Financiamiento",
+      "item": [
+        { "name": "Listar", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/solicitudes-financiamiento", "host": [ "{{baseUrl}}" ], "path": [ "api", "solicitudes-financiamiento" ] } } },
+        { "name": "Obtener", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/solicitudes-financiamiento/{{solicitudId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "solicitudes-financiamiento", "{{solicitudId}}" ] } } },
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"productoId\": {{productoId}},\n  \"productoFinanciamientoId\": {{productoFinanciamientoId}},\n  \"campanaId\": {{campanaId}},\n  \"montoSolicitado\": 30000.00,\n  \"plazoMeses\": 36,\n  \"tasaTipoAplicada\": \"TEA\",\n  \"tasaAnualAplicada\": 18.50,\n  \"consentimiento\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/solicitudes-financiamiento", "host": [ "{{baseUrl}}" ], "path": [ "api", "solicitudes-financiamiento" ] }
+          }
+        },
+        {
+          "name": "Actualizar estado",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"estado\": \"en_evaluacion\",\n  \"resultadoPrecalificacion\": \"precalificado\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/solicitudes-financiamiento/{{solicitudId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "solicitudes-financiamiento", "{{solicitudId}}" ] }
+          }
+        },
+        { "name": "Eliminar", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/solicitudes-financiamiento/{{solicitudId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "solicitudes-financiamiento", "{{solicitudId}}" ] } } }
+      ]
+    },
+    {
+      "name": "Historial de Solicitud",
+      "item": [
+        { "name": "Listar", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/historial-solicitud", "host": [ "{{baseUrl}}" ], "path": [ "api", "historial-solicitud" ] } } },
+        { "name": "Obtener", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/historial-solicitud/{{historialSolicitudId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "historial-solicitud", "{{historialSolicitudId}}" ] } } },
+        { "name": "Listar por solicitud", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/historial-solicitud/solicitud/{{solicitudId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "historial-solicitud", "solicitud", "{{solicitudId}}" ] } } },
+        {
+          "name": "Registrar",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"solicitudId\": {{solicitudId}},\n  \"estadoAnterior\": \"precalificado\",\n  \"estadoNuevo\": \"en_evaluacion\",\n  \"observacion\": \"Enviado a evaluación bancaria\",\n  \"usuarioId\": {{usuarioId}}\n}" },
+            "url": { "raw": "{{baseUrl}}/api/historial-solicitud", "host": [ "{{baseUrl}}" ], "path": [ "api", "historial-solicitud" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Derivación Banco",
+      "item": [
+        { "name": "Listar", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/derivacion-banco", "host": [ "{{baseUrl}}" ], "path": [ "api", "derivacion-banco" ] } } },
+        { "name": "Obtener", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/derivacion-banco/{{derivacionBancoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "derivacion-banco", "{{derivacionBancoId}}" ] } } },
+        {
+          "name": "Crear",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"solicitudId\": {{solicitudId}}\n}" },
+            "url": { "raw": "{{baseUrl}}/api/derivacion-banco", "host": [ "{{baseUrl}}" ], "path": [ "api", "derivacion-banco" ] }
+          }
+        },
+        {
+          "name": "Actualizar respuesta",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"codigoExterno\": \"BCP-000123\",\n  \"estadoRespuestaBanco\": \"aprobado\",\n  \"respuestaDetalle\": \"Aprobado por el banco aliado\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/derivacion-banco/{{derivacionBancoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "derivacion-banco", "{{derivacionBancoId}}" ] }
+          }
+        },
+        { "name": "Eliminar", "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/derivacion-banco/{{derivacionBancoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "derivacion-banco", "{{derivacionBancoId}}" ] } } }
+      ]
+    }
+  ]
+}

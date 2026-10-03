@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financia .PE | Mantenimiento de maestros</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="scripts/header.js" defer></script>
+  <script src="scripts/footer.js" defer></script>
+  <script src="scripts/mantenimientos.js" defer></script>
+</head>
+<body>
+  <div id="header"></div>
+
+  <div class="admin-shell">
+    <div class="admin-body">
+      <button class="admin-menu-toggle" type="button" id="menuToggle">Maestros</button>
+      <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar-label">Maestros</div>
+        <button class="admin-nav-item active" type="button" data-target="panel-usuarios">Usuarios</button>
+        <button class="admin-nav-item" type="button" data-target="panel-roles">Roles</button>
+        <button class="admin-nav-item" type="button" data-target="panel-categorias">Categorías</button>
+        <button class="admin-nav-item" type="button" data-target="panel-financiamiento">Tipos de financiamiento</button>
+        <button class="admin-nav-item" type="button" data-target="panel-aliados">Aliados</button>
+        <button class="admin-nav-item" type="button" data-target="panel-reglas">Reglas de precalificación</button>
+      </aside>
+
+      <main class="admin-main">
+        <!-- Usuarios -->
+        <section class="admin-panel active" id="panel-usuarios">
+          <div class="admin-panel-header">
+            <h2>Usuarios</h2>
+            <button class="admin-add-btn" type="button" data-form-toggle="form-usuarios">+ Nuevo usuario</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-form" id="form-usuarios">
+              <label>Correo electrónico
+                <input type="email" name="correo" required placeholder="usuario@financia.pe">
+              </label>
+              <label>Contraseña
+                <input type="password" name="password" required minlength="6">
+              </label>
+              <label>Rol
+                <select name="rol" required>
+                  <option value="administrador">Administrador</option>
+                  <option value="aliado">Aliado</option>
+                </select>
+              </label>
+              <label>Aliado asociado
+                <input type="text" name="aliado" placeholder="Solo si el rol es aliado">
+              </label>
+              <div class="admin-form-actions">
+                <button class="admin-form-cancel" type="button" data-form-close="form-usuarios">Cancelar</button>
+                <button class="admin-form-save" type="submit">Guardar</button>
+              </div>
+            </form>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Creado</th>
+                  <th>Roles</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody-usuarios">
+                <tr>
+                  <td class="admin-cell-link">administración</td>
+                  <td>30/9/2026</td>
+                  <td>administrador, usuario</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+                <tr>
+                  <td class="admin-cell-link">usuario</td>
+                  <td>30/9/2026</td>
+                  <td>usuario</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Roles -->
+        <section class="admin-panel" id="panel-roles">
+          <div class="admin-panel-header">
+            <h2>Roles</h2>
+            <button class="admin-add-btn" type="button" data-form-toggle="form-roles">+ Nuevo rol</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-form" id="form-roles">
+              <label>Nombre del rol
+                <input type="text" name="nombre" required placeholder="Ej. administrador">
+              </label>
+              <label>Estado
+                <select name="estado">
+                  <option value="Activo">Activo</option>
+                  <option value="Inactivo">Inactivo</option>
+                </select>
+              </label>
+              <div class="admin-form-actions">
+                <button class="admin-form-cancel" type="button" data-form-close="form-roles">Cancelar</button>
+                <button class="admin-form-save" type="submit">Guardar</button>
+              </div>
+            </form>
+            <table class="admin-table">
+              <thead>
+                <tr><th>Nombre</th><th>Estado</th><th></th></tr>
+              </thead>
+              <tbody id="tbody-roles">
+                <tr>
+                  <td class="admin-cell-link">administrador</td>
+                  <td>Activo</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+                <tr>
+                  <td class="admin-cell-link">aliado</td>
+                  <td>Activo</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Categorías -->
+        <section class="admin-panel" id="panel-categorias">
+          <div class="admin-panel-header">
+            <h2>Categorías</h2>
+            <button class="admin-add-btn" type="button" data-form-toggle="form-categorias">+ Nueva categoría</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-form" id="form-categorias">
+              <label>Nombre
+                <input type="text" name="nombre" required placeholder="Ej. Vehículos">
+              </label>
+              <label>Descripción
+                <input type="text" name="descripcion" placeholder="Descripción breve">
+              </label>
+              <label>Estado
+                <select name="estado">
+                  <option value="Activo">Activo</option>
+                  <option value="Inactivo">Inactivo</option>
+                </select>
+              </label>
+              <div class="admin-form-actions">
+                <button class="admin-form-cancel" type="button" data-form-close="form-categorias">Cancelar</button>
+                <button class="admin-form-save" type="submit">Guardar</button>
+              </div>
+            </form>
+            <table class="admin-table">
+              <thead>
+                <tr><th>Nombre</th><th>Descripción</th><th>Estado</th><th></th></tr>
+              </thead>
+              <tbody id="tbody-categorias">
+                <tr>
+                  <td class="admin-cell-link">Vehículos</td>
+                  <td>Financiamiento para adquisición de vehículos</td>
+                  <td>Activo</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+                <tr>
+                  <td class="admin-cell-link">Capital de trabajo</td>
+                  <td>Financiamiento para operaciones de negocio</td>
+                  <td>Activo</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Tipos de financiamiento -->
+        <section class="admin-panel" id="panel-financiamiento">
+          <div class="admin-panel-header">
+            <h2>Tipos de financiamiento</h2>
+            <button class="admin-add-btn" type="button" data-form-toggle="form-financiamiento">+ Nuevo tipo</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-form" id="form-financiamiento">
+              <label>Código
+                <select name="codigo" required>
+                  <option value="VEHICULAR">VEHICULAR</option>
+                  <option value="CAPITAL_TRABAJO">CAPITAL_TRABAJO</option>
+                </select>
+              </label>
+              <label>Nombre
+                <input type="text" name="nombre" required placeholder="Ej. Financiamiento vehicular">
+              </label>
+              <label>Descripción
+                <input type="text" name="descripcion" placeholder="Descripción breve">
+              </label>
+              <label>Estado
+                <select name="estado">
+                  <option value="Activo">Activo</option>
+                  <option value="Inactivo">Inactivo</option>
+                </select>
+              </label>
+              <div class="admin-form-actions">
+                <button class="admin-form-cancel" type="button" data-form-close="form-financiamiento">Cancelar</button>
+                <button class="admin-form-save" type="submit">Guardar</button>
+              </div>
+            </form>
+            <table class="admin-table">
+              <thead>
+                <tr><th>Código</th><th>Nombre</th><th>Descripción</th><th>Estado</th><th></th></tr>
+              </thead>
+              <tbody id="tbody-financiamiento">
+                <tr>
+                  <td class="admin-cell-link">VEHICULAR</td>
+                  <td>Financiamiento vehicular</td>
+                  <td>Financiamiento para adquisición de vehículos</td>
+                  <td>Activo</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+                <tr>
+                  <td class="admin-cell-link">CAPITAL_TRABAJO</td>
+                  <td>Capital de trabajo</td>
+                  <td>Financiamiento para operaciones de negocio</td>
+                  <td>Activo</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Aliados -->
+        <section class="admin-panel" id="panel-aliados">
+          <div class="admin-panel-header">
+            <h2>Aliados</h2>
+            <button class="admin-add-btn" type="button" data-form-toggle="form-aliados">+ Nuevo aliado</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-form" id="form-aliados">
+              <label>Razón social
+                <input type="text" name="razonSocial" required placeholder="Ej. Transportes Perú S.A.C.">
+              </label>
+              <label>RUC
+                <input type="text" name="ruc" required pattern="\d{11}" maxlength="11" placeholder="11 dígitos">
+              </label>
+              <label>Contacto
+                <input type="text" name="contacto" placeholder="Nombre de contacto">
+              </label>
+              <label>Correo de contacto
+                <input type="email" name="correo" placeholder="contacto@aliado.pe">
+              </label>
+              <label>Estado
+                <select name="estado">
+                  <option value="Activo">Activo</option>
+                  <option value="Inactivo">Inactivo</option>
+                </select>
+              </label>
+              <div class="admin-form-actions">
+                <button class="admin-form-cancel" type="button" data-form-close="form-aliados">Cancelar</button>
+                <button class="admin-form-save" type="submit">Guardar</button>
+              </div>
+            </form>
+            <table class="admin-table">
+              <thead>
+                <tr><th>Razón social</th><th>RUC</th><th>Contacto</th><th>Estado</th><th></th></tr>
+              </thead>
+              <tbody id="tbody-aliados">
+                <tr>
+                  <td class="admin-cell-link">Transportes Andinos S.A.C.</td>
+                  <td>20451236789</td>
+                  <td>Carlos Ramos</td>
+                  <td>Activo</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+                <tr>
+                  <td class="admin-cell-link">Inmobiliaria Costa Sur</td>
+                  <td>20589412345</td>
+                  <td>Lucía Vega</td>
+                  <td>Activo</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Reglas de precalificación -->
+        <section class="admin-panel" id="panel-reglas">
+          <div class="admin-panel-header">
+            <h2>Reglas de precalificación</h2>
+            <button class="admin-add-btn" type="button" data-form-toggle="form-reglas">+ Nueva regla</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-form" id="form-reglas">
+              <label>Campaña
+                <input type="text" name="campana" required placeholder="Ej. Campaña vehicular 2026">
+              </label>
+              <label>Edad mínima
+                <input type="number" name="edadMinima" min="18" required>
+              </label>
+              <label>Edad máxima
+                <input type="number" name="edadMaxima" min="18" required>
+              </label>
+              <label>Ingreso mínimo
+                <input type="number" name="ingresoMinimo" min="0" step="0.01" required>
+              </label>
+              <label>Monto mínimo
+                <input type="number" name="montoMinimo" min="0" step="0.01" required>
+              </label>
+              <label>Monto máximo
+                <input type="number" name="montoMaximo" min="0" step="0.01" required>
+              </label>
+              <label>Plazo mínimo (meses)
+                <input type="number" name="plazoMinimo" min="1" required>
+              </label>
+              <label>Plazo máximo (meses)
+                <input type="number" name="plazoMaximo" min="1" required>
+              </label>
+              <div class="admin-form-actions">
+                <button class="admin-form-cancel" type="button" data-form-close="form-reglas">Cancelar</button>
+                <button class="admin-form-save" type="submit">Guardar</button>
+              </div>
+            </form>
+            <table class="admin-table">
+              <thead>
+                <tr><th>Campaña</th><th>Edad</th><th>Ingreso mínimo</th><th>Monto</th><th>Plazo (meses)</th><th></th></tr>
+              </thead>
+              <tbody id="tbody-reglas">
+                <tr>
+                  <td class="admin-cell-link">Campaña vehicular 2026</td>
+                  <td>21 - 65</td>
+                  <td>S/ 1,500.00</td>
+                  <td>S/ 5,000.00 - S/ 80,000.00</td>
+                  <td>6 - 60</td>
+                  <td><button class="admin-delete-btn" type="button" aria-label="Eliminar">Eliminar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="footer"></div>
+</body>
+</html>

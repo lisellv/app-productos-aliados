@@ -1,0 +1,22 @@
+# OPCIONAL · requiere un Ingress Controller (minikube addons enable ingress)
+# Agrega en tu archivo hosts:  <IP de minikube>  kit2.local
+#   kubectl apply -f k8s/nivel3/opcional/ingress.yaml
+#   Abrir http://kit2.local
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kit2
+  namespace: kit2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: kit2.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  name: http

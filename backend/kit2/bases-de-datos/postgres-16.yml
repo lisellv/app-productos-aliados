@@ -1,0 +1,84 @@
+# =====================================================================
+# PostgreSQL 16  ·  dificultad: básica
+# ---------------------------------------------------------------------
+# Elige UNA de estas tres formas de encenderlo (desde la carpeta bases-de-datos):
+#
+#   1) Solo la base de datos (tu backend corre en IntelliJ / ./gradlew bootRun):
+#        docker compose -f postgres-16.yml up -d db adminer
+#
+#   2) Base de datos + backend descargado de GitHub (ghcr.io):
+#        docker compose -f postgres-16.yml up -d
+#
+#   3) Base de datos + backend construido desde tu código:
+#        docker compose -f postgres-16.yml -f backend-local.yml up -d --build
+#
+# Apagar (los datos se conservan):   docker compose -f postgres-16.yml down
+# Apagar y BORRAR los datos:         docker compose -f postgres-16.yml down -v
+# =====================================================================
+
+# Nombre del proyecto: se usa como prefijo de contenedores, red y volumen
+# (el volumen queda como "bd-postgres16_datos").
+name: bd-postgres16
+
+services:
+
+  # ------------------------------------------------------------------
+  # La base de datos
+  # ------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine            # motor:versión (alpine = imagen liviana)
+    environment:
+      POSTGRES_DB: servicetechdb         # base que se crea al primer arranque
+      POSTGRES_USER: postgres            # usuario administrador
+      POSTGRES_PASSWORD: postgres        # su clave (solo para practicar)
+    ports:
+      - "5432:5432"                      # "puerto de tu PC : puerto del contenedor"
+    volumes:
+      # Volumen con nombre: aquí viven los datos. Sobrevive a "down".
+      - datos:/var/lib/postgresql/data
+      # Scripts .sql que se ejecutan SOLO la primera vez (volumen vacío)
+      - ./init/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:                         # cómo sabe Docker que la base ya responde
+      test: ["CMD-SHELL", "pg_isready -U postgres -d servicetechdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  # ------------------------------------------------------------------
+  # Cliente web para ver tablas y datos: http://localhost:8081
+  # Sistema: PostgreSQL · Servidor: db · Usuario: postgres · Clave: postgres
+  # ------------------------------------------------------------------
+  adminer:
+    image: adminer:4
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+
+  # ------------------------------------------------------------------
+  # Tu backend Spring Boot (imagen publicada en GitHub)
+  # La imagen se define en el archivo .env (BACKEND_IMAGE).
+  # Para construirla desde tu código agrega: -f backend-local.yml
+  # ------------------------------------------------------------------
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/tu-usuario/tu-repo-backend:latest}
+    environment:
+      # Spring convierte SPRING_DATASOURCE_URL en spring.datasource.url
+      # Dentro de Docker la base se llama "db" (el nombre del servicio)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/servicetechdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-cambia-esta-clave-por-una-de-al-menos-32-caracteres-xyz}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy       # espera a que la base acepte conexiones
+    restart: unless-stopped
+
+# Volúmenes con nombre que usa este archivo. Docker los crea solo.
+volumes:
+  datos:

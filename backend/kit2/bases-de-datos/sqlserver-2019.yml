@@ -1,0 +1,97 @@
+# =====================================================================
+# SQL Server 2019  ·  dificultad: intermedia
+# ---------------------------------------------------------------------
+# Diferencias con PostgreSQL y MySQL:
+#   - Necesita al menos 2 GB de memoria libre para Docker.
+#   - La clave de "sa" debe ser segura (8+ caracteres con mayúsculas,
+#     minúsculas, números y símbolos) o el contenedor se apaga solo.
+#   - NO crea la base de datos por sí mismo: el servicio "db-init" la crea
+#     con el script init/sqlserver/01-crear-bd.sql.
+#   - No hay Adminer: usa sqlcmd (dentro del contenedor), DBeaver o la
+#     extensión "SQL Server (mssql)" de VS Code.
+#
+# Elige UNA de estas tres formas de encenderlo (desde la carpeta bases-de-datos):
+#
+#   1) Solo la base de datos (tu backend corre en IntelliJ / ./gradlew bootRun):
+#        docker compose -f sqlserver-2019.yml up -d db db-init
+#
+#   2) Base de datos + backend descargado de GitHub (ghcr.io):
+#        docker compose -f sqlserver-2019.yml up -d
+#
+#   3) Base de datos + backend construido desde tu código:
+#        docker compose -f sqlserver-2019.yml -f backend-local.yml up -d --build
+#
+# Apagar (los datos se conservan):   docker compose -f sqlserver-2019.yml down
+# Apagar y BORRAR los datos:         docker compose -f sqlserver-2019.yml down -v
+# =====================================================================
+
+# Nombre del proyecto: prefijo de contenedores, red y volumen ("bd-sqlserver2019_datos")
+name: bd-sqlserver2019
+
+services:
+
+  # ------------------------------------------------------------------
+  # La base de datos
+  # ------------------------------------------------------------------
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    # La imagen solo existe para procesadores Intel/AMD. En Mac con chip M
+    # esta línea la ejecuta emulada (activa Rosetta en Docker Desktop).
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: "Y"                   # aceptas la licencia de Microsoft (obligatorio)
+      MSSQL_PID: Developer               # edición gratuita para desarrollo
+      MSSQL_SA_PASSWORD: Kit2_Clave_Segura   # clave del administrador "sa"
+    ports:
+      - "1433:1433"                      # "puerto de tu PC : puerto del contenedor"
+    volumes:
+      # Volumen con nombre: aquí viven los datos. Sobrevive a "down".
+      - datos:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" -b -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s                  # SQL Server tarda en arrancar
+    restart: unless-stopped
+
+  # ------------------------------------------------------------------
+  # Tarea de una sola vez: crea la base "servicetechdb" si no existe.
+  # Usa la misma imagen (trae el programa sqlcmd), corre el script y termina.
+  # ------------------------------------------------------------------
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    platform: linux/amd64
+    environment:
+      MSSQL_SA_PASSWORD: Kit2_Clave_Segura
+    volumes:
+      - ./init/sqlserver:/scripts:ro
+    entrypoint: ["/bin/bash", "-c"]
+    command: ["/opt/mssql-tools18/bin/sqlcmd -S db -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -b -i /scripts/01-crear-bd.sql"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"                        # termina y no se vuelve a encender
+
+  # ------------------------------------------------------------------
+  # Tu backend Spring Boot (imagen publicada en GitHub)
+  # La imagen se define en el archivo .env (BACKEND_IMAGE).
+  # Para construirla desde tu código agrega: -f backend-local.yml
+  # Requisito: tu backend debe incluir el driver com.microsoft.sqlserver:mssql-jdbc
+  # ------------------------------------------------------------------
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/tu-usuario/tu-repo-backend:latest}
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://db:1433;databaseName=servicetechdb;encrypt=true;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: Kit2_Clave_Segura
+      JWT_SECRET: ${JWT_SECRET:-cambia-esta-clave-por-una-de-al-menos-32-caracteres-xyz}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully   # espera a que la base exista
+    restart: unless-stopped
+
+volumes:
+  datos:

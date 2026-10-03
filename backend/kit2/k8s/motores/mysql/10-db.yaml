@@ -1,0 +1,80 @@
+# MySQL 8.4 como StatefulSet: identidad estable y volumen persistente propio
+# (reemplaza a nivel2/10-db.yaml). Para MySQL 8.0 cambia la línea image.
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: kit2
+  labels:
+    app: db
+spec:
+  clusterIP: None          # Service "headless", requerido por el StatefulSet
+  selector:
+    app: db
+  ports:
+    - name: mysql
+      port: 3306
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  namespace: kit2
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.4
+          ports:
+            - name: mysql
+              containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef: { name: kit2-config, key: DB_NAME }
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: kit2-secret, key: DB_ROOT_PASSWORD }
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef: { name: kit2-secret, key: DB_USER }
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: kit2-secret, key: DB_PASSWORD }
+          # 127.0.0.1 obliga a usar la red: solo pasa cuando MySQL terminó de prepararse
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$MYSQL_ROOT_PASSWORD\""]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$MYSQL_ROOT_PASSWORD\""]
+            initialDelaySeconds: 60
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 100m, memory: 512Mi }
+            limits:   { memory: 1Gi }
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+              # Subcarpeta: MySQL se niega a iniciar en una carpeta que no está
+              # vacía (algunos discos traen "lost+found")
+              subPath: mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

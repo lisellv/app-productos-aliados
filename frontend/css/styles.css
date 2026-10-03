@@ -1,0 +1,869 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
+
+/* Estilos compartidos de Financia .PE */
+
+/* Colores y bordes reutilizables en todas las páginas. */
+:root {
+  --azul-principal: #155eef;
+  --azul-profundo: #0b3aa4;
+  --cian-acento: #16bff3;
+  --texto-principal: #19204a;
+  --texto-suave: #626d8b;
+  --fondo-superficie: #f8fbff;
+  --borde-suave: #e2eaf7;
+  --blanco: #ffffff;
+}
+
+/* Hace predecible el tamaño de todos los elementos. */
+* {
+  box-sizing: border-box;
+}
+
+/* Fondo, color de texto y tipografía generales de la página. */
+body {
+  /* Elimina el margen predeterminado del navegador. */
+  margin: 0;
+  /* Fondo visible fuera de los contenedores blancos. */
+  background: #ffffff;
+  color: var(--texto-principal);
+  font-family: "DM Sans", sans-serif;
+  line-height: 1.5;
+}
+
+/* Barra negra superior con los enlaces de cuenta alineados a la derecha. */
+.top-bar {
+  /* Flexbox alinea los enlaces de cuenta en una fila compacta. */
+  background: var(--azul-profundo);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 22px;
+  padding: 0 6vw;
+  height: 34px;
+}
+
+/* Enlaces de cuenta dentro de la barra superior. */
+.top-bar a {
+  color: #e7ebff;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* Diseño del encabezado principal compartido por las páginas de la Oportunidades . */
+header,
+.main-header {
+  /* Separa el logo de los controles del encabezado. */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 68px;
+  padding: 0 max(24px, 6vw);
+  border-bottom: 1px solid rgba(223, 230, 251, 0.9);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(11, 58, 164, 0.08);
+}
+
+/* Marca y logotipo de Financia .PE. */
+.logo,
+header .logo {
+  color: var(--azul-profundo);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-decoration: none;
+}
+
+/* Grupos de acciones del encabezado, como búsqueda, cuenta y carrito. */
+.header-icons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+  gap: 17px;
+}
+
+/* Navegación principal orientada al flujo de aliados y solicitudes. */
+/* Tamaño y alineación comunes para botones y enlaces del encabezado. */
+.icon-button {
+  /* El tamaño fijo evita desplazamientos cuando cambia el icono. */
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--azul-profundo);
+  font-size: 17px;
+  line-height: 1;
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+.icon-button img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* Diseño del footer de cuatro columnas usado en todo el sitio. */
+footer {
+  /* Grid mantiene las columnas del footer ordenadas y uniformes. */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 48px 6vw 24px;
+  background: var(--azul-profundo);
+  color: #e7ebff;
+}
+
+/* Títulos de las columnas del footer. */
+footer h3 {
+  margin: 0 0 12px;
+  color: var(--blanco);
+  font-size: 16px;
+}
+
+/* Elimina los estilos predeterminados de las listas del footer. */
+footer ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Espaciado y color de los elementos de navegación del footer. */
+footer li {
+  margin: 6px 0;
+  color: #c8d1fa;
+}
+
+/* Campo de correo electrónico del boletín. */
+footer input {
+  /* El campo ocupa todo el ancho disponible de su columna. */
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #59689e;
+  border-radius: 6px;
+  background: #1d2b5b;
+  color: var(--blanco);
+}
+
+/* Botón de suscripción al boletín. */
+footer button {
+  /* El color de marca destaca la acción de suscribirse. */
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--cian-acento);
+  color: var(--azul-profundo);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Mantiene estable el color del botón al pasar el cursor. */
+footer button:hover {
+  background: #67e8ff;
+}
+
+/* Fila de copyright separada de las columnas del footer. */
+footer p.copy {
+  /* El copyright ocupa el ancho completo debajo de las columnas. */
+  grid-column: span 4;
+  margin: 20px 0 0;
+  padding-top: 17px;
+  border-top: 1px solid #3d4a7c;
+  text-align: center;
+  color: #c8d1fa;
+  font-size: 14px;
+}
+
+/* Diseño para tabletas: reduce el padding lateral y usa dos columnas. */
+@media (max-width: 700px) {
+  header,
+  .main-header,
+  .top-bar {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  footer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 40px 24px 16px;
+  }
+}
+
+/* Diseño móvil: apila verticalmente las columnas del footer. */
+@media (max-width: 440px) {
+  footer {
+    grid-template-columns: 1fr;
+  }
+
+  footer p.copy {
+    grid-column: span 1;
+  }
+}
+
+/* Contenedor principal de las páginas internas. */
+.page,
+.pagina{
+  /* Ocupa todo el ancho y alto disponible, igual que el resto del sitio. */
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  background: #ffffff;
+}
+
+/* Ajustes específicos de la página de inicio. */
+section.banner {
+  /* La imagen se utiliza como fondo detrás del contenido promocional. */
+  position: relative;
+  min-height: 340px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(320px, 1.15fr);
+  align-items: center;
+  gap: 48px;
+  padding: 48px max(24px, 8vw);
+  text-align: left;
+  color: #ffffff;
+  background:  var(--azul-principal);
+  border-radius: 0 0 28px 28px;
+}
+
+section.banner h2 {
+  max-width: 780px;
+  margin: 0 0 18px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.08;
+}
+
+.banner-kicker {
+  display: inline-flex;
+  justify-self: start;
+  margin-bottom: 18px;
+  padding: 7px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  color: #dff9ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+section.banner p { max-width: 680px; margin: 7px 0; color: #000000; font-size: 16px; }
+
+.hero-panels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 720px;
+  justify-self: end;
+}
+
+.hero-card {
+  min-height: 190px;
+  padding: 12px 18px 18px;
+  border: 1px solid rgba(226, 234, 247, 0.9);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 16px 30px rgba(4, 35, 112, 0.2);
+}
+
+.hero-card-image {
+  width: 100%;
+  height: 136px;
+  display: block;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  object-fit: cover;
+  filter: saturate(0.78) contrast(1.04) brightness(1.03);
+}
+
+.hero-card-label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--azul-principal);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.hero-card h3 {
+  margin: 0;
+  color: var(--azul-profundo);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.hero-card-link {
+  color: var(--azul-principal);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+section.banner .banner-button {
+  /* La capa de color mejora el contraste del texto del botón. */
+  display: inline-block;
+  margin-top: 28px;
+  padding: 13px 24px;
+  border: none;
+  border-radius: 7px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  background: #000000;
+  box-shadow: 0 8px 20px rgba(11, 18, 55, 0.28);
+}
+
+section.banner .banner-button:hover { background: #222222; }
+
+/* Sección que presenta los beneficios principales de la Oportunidades . */
+section.promesa {
+  padding: 28px max(24px, 6vw) 88px;
+  text-align: center;
+  background: #ffffff;
+}
+
+section.promesa h2 {
+  margin: 0 0 34px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.2;
+  color: var(--azul-profundo);
+}
+
+/* Distribuye las características en cuatro tarjetas. */
+.features {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 244px;
+  padding: 28px 20px 24px;
+  border: 1px solid var(--borde-suave);
+  border-radius: 18px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 10px 28px rgba(11, 58, 164, 0.07);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.feature:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 34px rgba(11, 58, 164, 0.12);
+}
+
+.feature > img {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  padding: 10px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: transparent;
+  box-shadow: 0 8px 18px rgba(18, 75, 255, 0.12);
+}
+
+.feature h3 {
+  margin: 0 0 12px;
+  color: var(--azul-profundo);
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.feature p {
+  max-width: 220px;
+  margin: 0;
+  color: var(--texto-suave);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+  .features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 440px) {
+  .features {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Filtros y tarjetas de la página de categorías. */
+/* Flexbox coloca el filtro junto al catálogo de productos. */
+.catalog { display: flex; gap: 24px; align-items: flex-start; padding: 40px; }
+
+.filtros {
+  width: 300px;
+  padding: 20px;
+  border: 1px solid var(--borde-suave);
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: left;
+}
+
+.filtros label {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--texto-principal);
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.filtros .fila-precios {
+  /* Mantiene los campos de precio mínimo y máximo en una fila. */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  border: none;
+}
+
+.filtros .fila-precios input {
+  width: 110px;
+  padding: 12px 10px;
+  border: 1px solid var(--borde-suave);
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 16px;
+}
+
+.filtros .fila-precios span { color: var(--texto-principal); font-size: 16px; font-weight: bold; }
+
+.filtros button {
+  width: 100%;
+  padding: 12px 10px;
+  border: none;
+  border-radius: 10px;
+  background: #000000;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.filtros button:hover {
+  background: #222222;
+}
+
+/* El catálogo usa tres columnas que se adaptan al espacio disponible. */
+.productos { display: grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap: 20px; flex: 1; }
+
+.producto {
+  /* Cada producto se presenta como una tarjeta independiente. */
+  padding: 10px 10px 12px;
+  border: 1px solid var(--borde-suave);
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 10px 24px rgba(11, 58, 164, 0.05);
+}
+
+.producto img { width: 100%; max-width: 160px; display: block; margin: 0 auto 10px; border-radius: 10px; background: #f1f1f1; }
+.producto h3 { margin: 0; color: var(--texto-principal); font-size: 14px; text-align: left; font-weight: normal; }
+.producto p { margin: 8px 0 10px; color: var(--azul-profundo); font-size: 14px; text-align: left; font-weight: bold; }
+
+.producto .cantidad {
+  /* Control compacto para seleccionar la cantidad del producto. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 92px;
+  margin: 0 auto;
+  padding: 2px 4px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.producto .cantidad button { width: 20px; height: 20px; padding: 0; border: none; background: transparent; color: #000000; font-size: 18px; cursor: pointer; line-height: 1; }
+.producto .cantidad input[type="number"] { width: 26px; margin: 0; padding: 0; border: none; background: transparent; color: #000000; text-align: center; font-size: 16px; appearance: textfield; }
+
+/* Distribución y controles de la página del carrito. */
+.shopping-wrap { padding: 26px 20px 16px; background: #ffffff; }
+/* Título principal centrado del carrito. */
+.cart-title { margin: 4px 0 22px; color: var(--azul-profundo); text-align: center; font-family: "Space Grotesk", sans-serif; font-size: 28px; font-weight: 700; }
+/* Ancho limitado para mantener la lista de compra centrada. */
+.cart-panel { max-width: 620px; margin: 0 auto; padding: 12px; border: 1px solid var(--borde-suave); border-radius: 14px; background: #ffffff; }
+
+/* Cada fila contiene imagen, información, cantidad y eliminación. */
+.cart-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; padding: 12px 14px; border: 1px solid var(--borde-suave); border-radius: 10px; background: var(--fondo-superficie); }
+.product-box { display: flex; align-items: center; gap: 12px; flex: 1; }
+.product-thumb { width: 58px; height: 58px; overflow: hidden; flex-shrink: 0; border: 1px solid #d7d7d7; border-radius: 8px; background: #e7e7e7; }
+.product-thumb img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.product-meta { display: flex; flex: 1; min-width: 0; flex-direction: column; justify-content: center; }
+.product-name { margin-bottom: 8px; color: #1b1d20; font-size: 16px; font-weight: 500; }
+.product-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.price { color: #1b1d20; font-size: 18px; font-weight: 700; flex-shrink: 0; }
+
+/* Selector numérico con botones para aumentar o reducir la cantidad. */
+.quantity { display: inline-flex; align-items: center; height: 32px; overflow: hidden; border: 1px solid #d2d2d2; border-radius: 8px; background: #ffffff; }
+.quantity button { width: 30px; height: 30px; padding: 0; border: none; background: transparent; color: #1d1d1f; font-size: 22px; cursor: pointer; line-height: 1; }
+.quantity input { width: 34px; padding: 0; border: none; background: transparent; color: #1d1d1f; text-align: center; font-size: 18px; appearance: textfield; }
+.quantity input::-webkit-outer-spin-button, .quantity input::-webkit-inner-spin-button { margin: 0; -webkit-appearance: none; }
+.delete-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--borde-suave); border-radius: 4px; background: #f5f5f5; color: #666; font-size: 18px; cursor: pointer; }
+.delete-btn:hover { color: #d64545; }
+/* Coloca la etiqueta y el importe total en extremos opuestos. */
+.total-row { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding: 12px 0 0; border-top: 1px solid #e5e5e5; color: #1d1d1f; font-size: 18px; font-weight: 700; }
+.confirm-btn { display: block; width: 100%; box-sizing: border-box; margin-top: 14px; padding: 14px 16px; border: none; border-radius: 8px; background: #000000; color: #ffffff; font-size: 16px; font-weight: 700; cursor: pointer; text-align: center; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08); }
+.confirm-btn:hover { background: #222222; }
+
+/* Mensaje y código de orden confirmada. */
+.confirmation { min-height: 442px; padding: 64px 90px 80px; background: #ffffff; }
+.confirmation-content { max-width: 760px; margin: 0 auto; text-align: center; }
+.thanks-label { display: block; margin-bottom: 14px; color: var(--azul-principal); font-size: 15px; font-weight: 700; }
+.confirmation h1 { margin: 0; padding-bottom: 18px; border-bottom: 1px solid var(--borde-suave); color: var(--azul-profundo); font-family: "Space Grotesk", sans-serif; font-size: 34px; line-height: 1.15; }
+.confirmation-message { margin: 18px 0 28px; color: #6d6d6d; font-size: 16px; }
+.order-code-box { padding: 16px; background: #fff7ee; color: #252525; font-size: 14px; font-weight: 700; }
+.order-code { margin-top: 14px; padding: 16px; border: 1px solid #e5e5e5; border-radius: 6px; color: var(--azul-principal); font-size: 18px; font-weight: 700; letter-spacing: 0.04em; }
+
+/* Formularios de inicio de sesión y creación de cuenta. */
+.login-section, .seccion-registro { min-height: 442px; padding: 64px 24px 80px; }
+/* El ancho fijo conserva el formato compacto de los formularios. */
+.login-form, .formulario-registro { width: min(360px, 100%); margin: 0 auto; }
+.login-form h1, .formulario-registro h1 { margin: 0 0 28px; text-align: center; color: var(--azul-profundo); font-family: "Space Grotesk", sans-serif; font-size: 26px; line-height: 1.2; }
+.login-form label { display: block; margin-bottom: 7px; color: var(--texto-principal); font-size: 13px; font-weight: 600; }
+.login-form input { width: 100%; height: 40px; margin-bottom: 16px; padding: 0 12px; border: 1px solid var(--borde-suave); border-radius: 7px; color: var(--texto-principal); font-size: 14px; outline: none; }
+.login-form input:focus, .campo input:focus { border-color: var(--azul-principal); }
+
+.filtros button.destacado {
+  border: 2px solid var(--azul-principal);
+  background-color: var(--fondo-superficie);
+  color: var(--azul-principal);
+}
+.login-button, .boton-registro { width: 100%; height: 42px; border: 0; border-radius: 7px; background: #000000; color: #ffffff; font-size: 14px; font-weight: 700; cursor: pointer; }
+.login-button:hover, .boton-registro:hover { background: #222222; }
+.login-button { margin-top: 2px; }
+.boton-registro { margin-top: 12px; }
+.create-account, .login { margin: 28px 0 0; text-align: center; color: #777777; font-size: 13px; }
+.create-account a, .login a { margin-left: 8px; color: var(--azul-principal); text-decoration: none; }
+.campo { margin-bottom: 16px; }
+/* El fondo claro de las etiquetas separa visualmente cada campo. */
+.campo label { display: block; margin-bottom: 7px; color: #222222; font-size: 13px; font-weight: 600; }
+.campo input { width: 100%; height: 40px; padding: 0 12px; border: 1px solid #d5d9df; border-radius: 7px; background: #ffffff; color: #444444; font-size: 14px; outline: none; }
+
+/* Adaptaciones de las páginas internas para tabletas y móviles. */
+@media (max-width: 760px) {
+  /* Reduce el borde exterior en pantallas estrechas. */
+  .cart-panel { max-width: 100%; }
+  .product-row { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  /* Permite que los controles del carrito pasen a una segunda línea. */
+  .top-bar { justify-content: center; }
+  .main-header { flex-direction: column; gap: 10px; }
+  .cart-item { flex-wrap: wrap; }
+  .delete-btn { margin-left: auto; }
+}
+
+@media (max-width: 700px) {
+  /* Evita que los formularios se desborden en pantallas pequeñas. */
+  .login-form, .formulario-registro { width: min(310px, calc(100% - 48px)); }
+  .confirmation { padding: 42px 24px 0; }
+}
+
+@media (max-width: 440px) {
+  /* Ajustes finales para teléfonos con poco ancho disponible. */
+  .confirmation h1 { font-size: 22px; }
+}
+
+@media (max-width: 700px) {
+  section.banner {
+    grid-template-columns: 1fr;
+    gap: 34px;
+    padding-top: 72px;
+    padding-bottom: 72px;
+    text-align: center;
+  }
+
+  .banner-kicker {
+    justify-self: center;
+  }
+
+  section.banner h2 {
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  section.banner p {
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .hero-panels {
+    grid-template-columns: 1fr;
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+/* Panel de mantenimiento de maestros (roles, categorías, aliados, etc.). */
+.admin-shell {
+  background: var(--fondo-superficie);
+}
+
+.admin-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px max(20px, 3vw) 60px;
+}
+
+.admin-menu-toggle {
+  display: none;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 11px 16px;
+  border: 1px solid var(--borde-suave);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--texto-principal);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 20px;
+  flex-shrink: 0;
+  width: 240px;
+  overflow: hidden;
+  padding: 16px 0;
+  background: #ffffff;
+  border: 1px solid var(--borde-suave);
+  border-radius: 14px;
+}
+
+.admin-sidebar-label {
+  padding: 6px 20px 10px;
+  color: var(--texto-suave);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 20px;
+  border: 0;
+  border-right: 3px solid transparent;
+  background: transparent;
+  color: var(--texto-principal);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-nav-item:hover {
+  background: var(--fondo-superficie);
+}
+
+.admin-nav-item.active {
+  background: #eef3ff;
+  color: var(--azul-principal);
+  font-weight: 700;
+  border-right-color: var(--azul-principal);
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-panel {
+  display: none;
+}
+
+.admin-panel.active {
+  display: block;
+}
+
+.admin-panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-panel-header h2 {
+  margin: 0;
+  color: var(--azul-profundo);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 22px;
+}
+
+.admin-add-btn {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 7px;
+  background: #000000;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-add-btn:hover {
+  background: #222222;
+}
+
+.admin-card {
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--borde-suave);
+  border-radius: 14px;
+  box-shadow: 0 10px 26px rgba(11, 58, 164, 0.06);
+}
+
+.admin-form {
+  display: none;
+  padding: 18px 20px;
+  background: var(--fondo-superficie);
+  border-bottom: 1px solid var(--borde-suave);
+}
+
+.admin-form.open {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.admin-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--texto-principal);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-form input,
+.admin-form select {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--borde-suave);
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.admin-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.admin-form-actions button {
+  padding: 9px 16px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 0;
+}
+
+.admin-form-save {
+  background: #000000;
+  color: #ffffff;
+}
+
+.admin-form-save:hover {
+  background: #222222;
+}
+
+.admin-form-cancel {
+  background: transparent;
+  color: var(--texto-suave);
+  border: 1px solid var(--borde-suave) !important;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  padding: 14px 20px;
+  color: var(--texto-suave);
+  font-size: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--borde-suave);
+}
+
+.admin-table td {
+  padding: 14px 20px;
+  color: var(--texto-principal);
+  font-size: 14px;
+  border-bottom: 1px solid var(--borde-suave);
+}
+
+.admin-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-table td.admin-cell-link {
+  color: var(--azul-principal);
+  font-weight: 600;
+}
+
+.admin-delete-btn {
+  border: 0;
+  background: transparent;
+  color: #8a93ab;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-delete-btn:hover {
+  color: #d64545;
+}
+
+@media (max-width: 860px) {
+  .admin-body {
+    flex-direction: column;
+  }
+
+  .admin-menu-toggle {
+    display: block;
+  }
+
+  .admin-sidebar {
+    position: static;
+    display: none;
+    width: 100%;
+  }
+
+  .admin-sidebar.open {
+    display: block;
+  }
+}
+

@@ -1,0 +1,83 @@
+# Backend Spring Boot
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: kit2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      # Espera a que PostgreSQL acepte conexiones antes de iniciar Spring
+      # (equivale a depends_on: condition: service_healthy del compose)
+      initContainers:
+        - name: esperar-db
+          image: busybox:1.36
+          env:
+            # Puerto del motor elegido (5432 PostgreSQL, 3306 MySQL, 1433 SQL Server)
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef: { name: kit2-config, key: DB_PORT }
+          command: ["sh", "-c", "until nc -z db $DB_PORT; do echo 'esperando db...'; sleep 2; done"]
+      containers:
+        - name: backend
+          # Imagen construida con docker compose (nivel 2). Ver README para
+          # cargarla en minikube/kind.
+          image: kit2/backend:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef: { name: kit2-config, key: SPRING_DATASOURCE_URL }
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef: { name: kit2-secret, key: DB_USER }
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: kit2-secret, key: DB_PASSWORD }
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef: { name: kit2-secret, key: JWT_SECRET }
+          # Spring tarda en arrancar: startupProbe le da hasta 3 minutos
+          # antes de que las otras sondas empiecen a evaluar
+          startupProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 250m, memory: 512Mi }
+            limits:   { memory: 1Gi }   # sin límite de CPU: la JVM arranca muy lento con él
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+---
+# ClusterIP: en el nivel 3 el backend es interno; desde fuera se llega
+# a través del frontend (Nginx reenvía /api a este Service)
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: kit2
+spec:
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

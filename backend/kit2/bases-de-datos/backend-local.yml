@@ -1,0 +1,20 @@
+# =====================================================================
+# Backend construido desde TU código (en vez de descargarlo de GitHub)
+# ---------------------------------------------------------------------
+# Este archivo NO se usa solo: se agrega como segundo -f, después del
+# archivo de la base de datos que elegiste. Compose junta los dos archivos
+# y estos valores reemplazan a los del servicio "backend".
+#
+#   docker compose -f postgres-17.yml -f backend-local.yml up -d --build
+#
+# Requisito: tu repositorio del backend tiene un Dockerfile en su raíz
+# (copia kit2/docker/backend/Dockerfile si no lo tiene).
+# =====================================================================
+services:
+  backend:
+    build:
+      # Carpeta de tu repositorio del backend, relativa a ESTA carpeta.
+      # Se define en .env (BACKEND_DIR). Por defecto: dos carpetas arriba.
+      context: ${BACKEND_DIR:-../../ServicesBackend}
+    image: kit2/backend:local     # nombre que recibe la imagen construida
+    pull_policy: build            # siempre construir, nunca descargar

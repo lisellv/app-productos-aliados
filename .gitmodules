@@ -1,6 +1,0 @@
-[submodule "backend"]
-	path = backend
-	url = https://github.com/lisellv/app-productos-aliados-back-end.git
-[submodule "frontend"]
-	path = frontend
-	url = https://github.com/lisellv/app-productos-aliados-front-end.git

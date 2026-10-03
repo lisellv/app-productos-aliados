@@ -1,0 +1,12 @@
+# SQL Server · configuración no sensible (reemplaza a nivel2/02-configmap.yaml)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kit2-config
+  namespace: kit2
+data:
+  DB_NAME: servicetechdb
+  # Puerto que espera el initContainer del backend antes de arrancar
+  DB_PORT: "1433"
+  # "db" es el nombre del Service de SQL Server (10-db.yaml)
+  SPRING_DATASOURCE_URL: jdbc:sqlserver://db:1433;databaseName=servicetechdb;encrypt=true;trustServerCertificate=true
