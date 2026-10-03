@@ -1,0 +1,15 @@
+# NIVEL 3 · Base de datos + backend + frontend (como producción)
+# Uso: docker compose -f nivel3-full.yml up -d --build
+# En tu PC corres: nada. Abre http://localhost:3000
+include:
+  - nivel2-db-backend.yml # trae "db" y "backend" (el nivel 2 ya incluye al nivel 1)
+services:
+  backend:
+    ports: !reset []
+  frontend:
+    build: ./frontend # carpeta donde está el Dockerfile del frontend
+    restart: unless-stopped
+    ports:
+      - "3000:8080" # Nginx escucha en 8080 dentro del contenedor
+    depends_on:
+      - backend

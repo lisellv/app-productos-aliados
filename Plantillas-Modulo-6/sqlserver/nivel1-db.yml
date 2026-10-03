@@ -1,0 +1,36 @@
+# NIVEL 1 · Solo la base de datos (SQL Server 2019)
+# Uso:  docker compose -f nivel1-db.yml up -d
+# En tu PC corres: backend y frontend
+# Ojo: la contraseña debe tener 8 o más caracteres, con mayúsculas,
+#      minúsculas, números y un símbolo. Si no, SQL Server no arranca.
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Clave.Segura123"
+    ports:
+      - "1433:1433"        # para conectarte desde tu PC (backend local, DBeaver, SSMS)
+    volumes:
+      - db_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "$$(ls /opt/mssql-tools*/bin/sqlcmd | tail -1) -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  # SQL Server no crea la base sola: este servicio la crea y termina.
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - $$(ls /opt/mssql-tools*/bin/sqlcmd | tail -1) -C -S db -U sa -P "Clave.Segura123" -Q "IF DB_ID('NOMBRE_BD') IS NULL CREATE DATABASE NOMBRE_BD"
+
+volumes:
+  db_data:

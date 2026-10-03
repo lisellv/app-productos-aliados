@@ -1,0 +1,22 @@
+# NIVEL 1 · Solo la base de datos (MySQL 8)
+# Uso:  docker compose -f nivel1-db.yml up -d
+# En tu PC corres: backend y frontend
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: NOMBRE_BD
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"        # para conectarte desde tu PC (backend local, DBeaver, Workbench)
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  db_data:
