@@ -53,7 +53,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/app_productos_aliados_local
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: admin
-      #JWT_SECRET: ${JWT_SECRET:-cambia-esta-clave-por-una-de-al-menos-32-caracteres-xyz}
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET before starting Docker Compose}
     ports:
       - "${BACKEND_PORT:-8084}:8080"      # evita chocar con un backend local en 8080
     depends_on:

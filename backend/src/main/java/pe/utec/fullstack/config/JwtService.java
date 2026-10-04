@@ -1,24 +1,32 @@
 package pe.utec.fullstack.config;
 
+import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 import pe.utec.fullstack.controller.auth.UserInfoDetails;
-
-import java.security.Key;
-import java.util.*;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    public static final String SECRET = "5367566859703373367639792F423F452848284D6251655468576D5A71347437";
+    @Value("${jwt.secret}")
+    private String secret;
 
     public String generateToken(String username) { // Use email as username
         Map<String, Object> claims = new HashMap<>();
@@ -49,7 +57,7 @@ public class JwtService {
     }
 
     private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
