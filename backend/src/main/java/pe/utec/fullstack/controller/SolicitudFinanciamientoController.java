@@ -1,14 +1,26 @@
 package pe.utec.fullstack.controller;
 
-import jakarta.validation.Valid;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import pe.utec.fullstack.domain.business.SolicitudFinanciamiento;
-import pe.utec.fullstack.domain.SolicitudFinanciamientoService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+import pe.utec.fullstack.controller.auth.UserInfoDetails;
 import pe.utec.fullstack.controller.request.CreateSolicitudFinanciamientoRequest;
 import pe.utec.fullstack.controller.request.UpdateSolicitudFinanciamientoRequest;
-
-import java.util.List;
+import pe.utec.fullstack.domain.SolicitudFinanciamientoService;
+import pe.utec.fullstack.domain.business.SolicitudFinanciamiento;
 
 @RestController
 @RequestMapping("/api/solicitudes-financiamiento")
@@ -18,15 +30,21 @@ public class SolicitudFinanciamientoController {
     private final RequestMapper mapper;
 
     public SolicitudFinanciamientoController(SolicitudFinanciamientoService solicitudFinanciamientoService,
-                                              RequestMapper mapper) {
+            RequestMapper mapper) {
         this.solicitudFinanciamientoService = solicitudFinanciamientoService;
         this.mapper = mapper;
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<SolicitudFinanciamiento> listar() {
-        return this.solicitudFinanciamientoService.listar();
+    public List<SolicitudFinanciamiento> listar(
+            @AuthenticationPrincipal UserInfoDetails usuario,
+            Authentication authentication) {
+        boolean administrador = authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+        return administrador
+                ? this.solicitudFinanciamientoService.listar()
+                : this.solicitudFinanciamientoService.listarDeUsuario(usuario.getId());
     }
 
     @GetMapping("/{id}")
@@ -37,13 +55,16 @@ public class SolicitudFinanciamientoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SolicitudFinanciamiento crear(@Valid @RequestBody CreateSolicitudFinanciamientoRequest request) {
-        return this.solicitudFinanciamientoService.crear(this.mapper.toDomain(request));
+    public SolicitudFinanciamiento crear(@Valid @RequestBody CreateSolicitudFinanciamientoRequest request,
+            @AuthenticationPrincipal UserInfoDetails usuario) {
+        return this.solicitudFinanciamientoService.crear(
+                this.mapper.toDomain(request), usuario == null ? null : usuario.getId());
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public SolicitudFinanciamiento actualizar(@PathVariable Integer id, @Valid @RequestBody UpdateSolicitudFinanciamientoRequest request) {
+    public SolicitudFinanciamiento actualizar(@PathVariable Integer id,
+            @Valid @RequestBody UpdateSolicitudFinanciamientoRequest request) {
         return this.solicitudFinanciamientoService.actualizar(id, this.mapper.toDomain(request));
     }
 

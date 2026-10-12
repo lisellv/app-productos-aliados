@@ -1,12 +1,12 @@
 package pe.utec.fullstack.domain.business;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -17,6 +17,8 @@ public class SolicitudFinanciamiento {
     private Integer id;
 
     private Integer clienteId;
+
+    private Integer creadoPorUsuarioId;
 
     private Integer productoId;
 

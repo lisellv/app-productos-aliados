@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Financia .PE | Mantenimiento de maestros</title>
+  <title>Financia Minegocio.PE | Mantenimiento de maestros</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="scripts/header.js" defer></script>
+    <script src="scripts/config.js" defer></script>
+    <script src="scripts/api.js" defer></script>
   <script src="scripts/footer.js" defer></script>
   <script src="scripts/mantenimientos.js" defer></script>
 </head>
@@ -22,6 +24,9 @@
         <button class="admin-nav-item" type="button" data-target="panel-categorias">Categorías</button>
         <button class="admin-nav-item" type="button" data-target="panel-financiamiento">Tipos de financiamiento</button>
         <button class="admin-nav-item" type="button" data-target="panel-aliados">Aliados</button>
+        <button class="admin-nav-item" type="button" data-target="panel-clientes">Clientes</button>
+        <button class="admin-nav-item" type="button" data-target="panel-productos">Productos</button>
+        <button class="admin-nav-item" type="button" data-target="panel-campanas">Campañas</button>
         <button class="admin-nav-item" type="button" data-target="panel-reglas">Reglas de precalificación</button>
       </aside>
 
@@ -38,16 +43,23 @@
                 <input type="email" name="correo" required placeholder="usuario@financia.pe">
               </label>
               <label>Contraseña
-                <input type="password" name="password" required minlength="6">
+                <input type="password" name="password" required minlength="8">
               </label>
               <label>Rol
-                <select name="rol" required>
-                  <option value="administrador">Administrador</option>
-                  <option value="aliado">Aliado</option>
+                <select name="rolId" required>
+                  <option value="">Selecciona un rol</option>
                 </select>
               </label>
               <label>Aliado asociado
-                <input type="text" name="aliado" placeholder="Solo si el rol es aliado">
+                <select name="aliadoId">
+                  <option value="">Sin aliado</option>
+                </select>
+              </label>
+              <label>Estado
+                <select name="estado">
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
               </label>
               <div class="admin-form-actions">
                 <button class="admin-form-cancel" type="button" data-form-close="form-usuarios">Cancelar</button>
@@ -92,12 +104,6 @@
               <label>Nombre del rol
                 <input type="text" name="nombre" required placeholder="Ej. administrador">
               </label>
-              <label>Estado
-                <select name="estado">
-                  <option value="Activo">Activo</option>
-                  <option value="Inactivo">Inactivo</option>
-                </select>
-              </label>
               <div class="admin-form-actions">
                 <button class="admin-form-cancel" type="button" data-form-close="form-roles">Cancelar</button>
                 <button class="admin-form-save" type="submit">Guardar</button>
@@ -139,8 +145,8 @@
               </label>
               <label>Estado
                 <select name="estado">
-                  <option value="Activo">Activo</option>
-                  <option value="Inactivo">Inactivo</option>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
                 </select>
               </label>
               <div class="admin-form-actions">
@@ -192,8 +198,8 @@
               </label>
               <label>Estado
                 <select name="estado">
-                  <option value="Activo">Activo</option>
-                  <option value="Inactivo">Inactivo</option>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
                 </select>
               </label>
               <div class="admin-form-actions">
@@ -237,18 +243,21 @@
                 <input type="text" name="razonSocial" required placeholder="Ej. Transportes Perú S.A.C.">
               </label>
               <label>RUC
-                <input type="text" name="ruc" required pattern="\d{11}" maxlength="11" placeholder="11 dígitos">
+                <input type="text" name="numeroDocumento" required pattern="\d{11}" maxlength="11" placeholder="11 dígitos">
               </label>
               <label>Contacto
-                <input type="text" name="contacto" placeholder="Nombre de contacto">
+                <input type="text" name="contactoNombre" placeholder="Nombre de contacto">
               </label>
               <label>Correo de contacto
-                <input type="email" name="correo" placeholder="contacto@aliado.pe">
+                <input type="email" name="contactoCorreo" placeholder="contacto@aliado.pe">
+              </label>
+              <label>Teléfono de contacto
+                <input type="tel" name="contactoTelefono" placeholder="987654321">
               </label>
               <label>Estado
                 <select name="estado">
-                  <option value="Activo">Activo</option>
-                  <option value="Inactivo">Inactivo</option>
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
                 </select>
               </label>
               <div class="admin-form-actions">
@@ -280,6 +289,160 @@
           </div>
         </section>
 
+        <!-- Clientes -->
+        <section class="admin-panel" id="panel-clientes">
+          <div class="admin-panel-header">
+            <h2>Clientes</h2>
+            <button class="admin-add-btn" type="button" data-form-toggle="form-clientes">+ Nuevo cliente</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-form" id="form-clientes">
+              <label>Tipo de persona
+                <select name="tipoPersona" required>
+                  <option value="NATURAL">Persona natural</option>
+                  <option value="JURIDICA">Persona jurídica</option>
+                </select>
+              </label>
+              <label>Tipo de documento
+                <select name="tipoDocumento" required>
+                  <option value="DNI">DNI</option>
+                  <option value="CE">Carné de extranjería</option>
+                  <option value="PASAPORTE">Pasaporte</option>
+                  <option value="RUC">RUC</option>
+                </select>
+              </label>
+              <label>Número de documento
+                <input type="text" name="numeroDocumento" required maxlength="15">
+              </label>
+              <label data-client-natural>Nombres
+                <input type="text" name="nombres">
+              </label>
+              <label data-client-natural>Apellidos
+                <input type="text" name="apellidos">
+              </label>
+              <label data-client-legal>Razón social
+                <input type="text" name="razonSocial">
+              </label>
+              <label>Correo
+                <input type="email" name="correo">
+              </label>
+              <label>Teléfono
+                <input type="tel" name="telefono">
+              </label>
+              <div class="admin-form-actions">
+                <button class="admin-form-cancel" type="button" data-form-close="form-clientes">Cancelar</button>
+                <button class="admin-form-save" type="submit">Guardar</button>
+              </div>
+            </form>
+            <table class="admin-table">
+              <thead>
+                <tr><th>Tipo</th><th>Documento</th><th>Nombre / razón social</th><th>Correo</th><th>Teléfono</th><th></th></tr>
+              </thead>
+              <tbody id="tbody-clientes"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Productos -->
+        <section class="admin-panel" id="panel-productos">
+          <div class="admin-panel-header">
+            <h2>Productos</h2>
+            <button class="admin-add-btn" type="button" data-form-toggle="form-productos">+ Nuevo producto</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-form" id="form-productos">
+              <label>Aliado
+                <select name="aliadoId" required><option value="">Selecciona un aliado</option></select>
+              </label>
+              <label>Categoría
+                <select name="categoriaId"><option value="">Sin categoría</option></select>
+              </label>
+              <label>Nombre
+                <input type="text" name="nombre" required>
+              </label>
+              <label>Descripción
+                <input type="text" name="descripcion">
+              </label>
+              <label>Precio de lista
+                <input type="number" name="precioLista" min="0" step="0.01" required>
+              </label>
+              <label>Moneda
+                <select name="moneda">
+                  <option value="PEN">PEN</option>
+                  <option value="USD">USD</option>
+                </select>
+              </label>
+              <label>Incluye IGV
+                <select name="incluyeIgv">
+                  <option value="true">Sí</option>
+                  <option value="false">No</option>
+                </select>
+              </label>
+              <label>URL de imagen
+                <input type="url" name="imagenUrl" placeholder="https://...">
+              </label>
+              <label>Estado
+                <select name="estado">
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
+                </select>
+              </label>
+              <div class="admin-form-actions">
+                <button class="admin-form-cancel" type="button" data-form-close="form-productos">Cancelar</button>
+                <button class="admin-form-save" type="submit">Guardar</button>
+              </div>
+            </form>
+            <table class="admin-table">
+              <thead>
+                <tr><th>Producto</th><th>Aliado</th><th>Categoría</th><th>Precio</th><th>Estado</th><th></th></tr>
+              </thead>
+              <tbody id="tbody-productos"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Campañas -->
+        <section class="admin-panel" id="panel-campanas">
+          <div class="admin-panel-header">
+            <h2>Campañas</h2>
+            <button class="admin-add-btn" type="button" data-form-toggle="form-campanas">+ Nueva campaña</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-form" id="form-campanas">
+              <label>Nombre
+                <input type="text" name="nombre" required>
+              </label>
+              <label>Descripción
+                <input type="text" name="descripcion">
+              </label>
+              <label>Fecha de inicio
+                <input type="date" name="fechaInicio" required>
+              </label>
+              <label>Fecha de fin
+                <input type="date" name="fechaFin" required>
+              </label>
+              <label>Estado
+                <select name="estado">
+                  <option value="planificada">Planificada</option>
+                  <option value="activa">Activa</option>
+                  <option value="finalizada">Finalizada</option>
+                  <option value="cancelada">Cancelada</option>
+                </select>
+              </label>
+              <div class="admin-form-actions">
+                <button class="admin-form-cancel" type="button" data-form-close="form-campanas">Cancelar</button>
+                <button class="admin-form-save" type="submit">Guardar</button>
+              </div>
+            </form>
+            <table class="admin-table">
+              <thead>
+                <tr><th>Nombre</th><th>Descripción</th><th>Vigencia</th><th>Estado</th><th></th></tr>
+              </thead>
+              <tbody id="tbody-campanas"></tbody>
+            </table>
+          </div>
+        </section>
+
         <!-- Reglas de precalificación -->
         <section class="admin-panel" id="panel-reglas">
           <div class="admin-panel-header">
@@ -289,7 +452,9 @@
           <div class="admin-card">
             <form class="admin-form" id="form-reglas">
               <label>Campaña
-                <input type="text" name="campana" required placeholder="Ej. Campaña vehicular 2026">
+                <select name="campanaId" required>
+                  <option value="">Selecciona una campaña</option>
+                </select>
               </label>
               <label>Edad mínima
                 <input type="number" name="edadMinima" min="18" required>
@@ -311,6 +476,12 @@
               </label>
               <label>Plazo máximo (meses)
                 <input type="number" name="plazoMaximo" min="1" required>
+              </label>
+              <label>Estado
+                <select name="estado">
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
               </label>
               <div class="admin-form-actions">
                 <button class="admin-form-cancel" type="button" data-form-close="form-reglas">Cancelar</button>

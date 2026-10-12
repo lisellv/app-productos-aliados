@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,10 +41,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/actuator/health/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productos", "/api/productos/**",
+                                "/api/categorias", "/api/categorias/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productos-financiamiento/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/clientes/registro").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/solicitudes-financiamiento").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/solicitudes-financiamiento").authenticated()
 
-                    .requestMatchers(
-                        "/swagger", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-                        "/v3/api-docs.yaml").permitAll()
+                        .requestMatchers(
+                                "/swagger", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
+                                "/v3/api-docs.yaml")
+                        .permitAll()
                         .requestMatchers(
                                 "/api/roles/**", "/api/usuarios/**", "/api/aliados/**", "/api/clientes/**",
                                 "/api/categorias/**", "/api/productos/**", "/api/tipos-financiamiento/**",

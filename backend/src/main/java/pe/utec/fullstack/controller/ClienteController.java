@@ -1,14 +1,24 @@
 package pe.utec.fullstack.controller;
 
-import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import pe.utec.fullstack.domain.business.Cliente;
-import pe.utec.fullstack.domain.ClienteService;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
 import pe.utec.fullstack.controller.request.CreateClienteRequest;
 import pe.utec.fullstack.controller.request.UpdateClienteRequest;
-
-import java.util.List;
+import pe.utec.fullstack.domain.ClienteService;
+import pe.utec.fullstack.domain.business.Cliente;
 
 @RestController
 @RequestMapping("/api/clientes")
@@ -38,6 +48,13 @@ public class ClienteController {
     @ResponseStatus(HttpStatus.CREATED)
     public Cliente crear(@Valid @RequestBody CreateClienteRequest request) {
         return this.clienteService.crear(this.mapper.toDomain(request));
+    }
+
+    @PostMapping("/registro")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Integer> registrar(@Valid @RequestBody CreateClienteRequest request) {
+        Cliente cliente = this.clienteService.registrarOEncontrar(this.mapper.toDomain(request));
+        return Map.of("clienteId", cliente.getId());
     }
 
     @PutMapping("/{id}")

@@ -37,6 +37,9 @@ public class SolicitudFinanciamientoJpaEntity {
     @Column(name = "cliente_id", nullable = false)
     private Integer clienteId;
 
+    @Column(name = "creado_por_usuario_id")
+    private Integer creadoPorUsuarioId;
+
     @Column(name = "producto_id", nullable = false)
     private Integer productoId;
 

@@ -1,16 +1,17 @@
 package pe.utec.fullstack.domain;
 
-import jakarta.persistence.EntityNotFoundException;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
 import pe.utec.fullstack.domain.business.Cliente;
 import pe.utec.fullstack.domain.business.TipoDocumento;
 import pe.utec.fullstack.domain.business.TipoPersona;
-
 import pe.utec.fullstack.repository.ClienteRepository;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Set;
 
 @Service
 public class ClienteService {
@@ -23,6 +24,7 @@ public class ClienteService {
     public ClienteService(ClienteRepository clienteRepository) {
         this.clienteRepository = clienteRepository;
     }
+
     public Cliente crear(Cliente cliente) {
         this.validarConsistenciaPersona(cliente);
         cliente.setAlta((short) 1);
@@ -30,13 +32,29 @@ public class ClienteService {
         cliente.setActualizadoAt(OffsetDateTime.now());
         return this.clienteRepository.guardar(cliente);
     }
+
+    public Cliente registrarOEncontrar(Cliente cliente) {
+        this.validarConsistenciaPersona(cliente);
+        var existente = this.clienteRepository.buscarPorDocumento(
+                cliente.getTipoDocumento(), cliente.getNumeroDocumento());
+        if (existente.isPresent()) {
+            if (!Objects.equals(existente.get().getAlta(), (short) 1)) {
+                throw new IllegalArgumentException("El cliente asociado a este documento está inactivo");
+            }
+            return existente.get();
+        }
+        return this.crear(cliente);
+    }
+
     public Cliente obtenerPorId(Integer id) {
         return this.clienteRepository.buscarPorId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado: " + id));
     }
+
     public List<Cliente> listar() {
         return this.clienteRepository.listarActivos();
     }
+
     public Cliente actualizar(Integer id, Cliente cliente) {
         Cliente existente = this.obtenerPorId(id);
         existente.setTipoPersona(cliente.getTipoPersona());
@@ -51,6 +69,7 @@ public class ClienteService {
         existente.setActualizadoAt(OffsetDateTime.now());
         return this.clienteRepository.guardar(existente);
     }
+
     public void eliminar(Integer id) {
         Cliente existente = this.obtenerPorId(id);
         existente.setAlta((short) 0);

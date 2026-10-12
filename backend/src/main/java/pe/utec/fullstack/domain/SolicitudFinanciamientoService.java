@@ -1,15 +1,15 @@
 package pe.utec.fullstack.domain;
 
-import jakarta.persistence.EntityNotFoundException;
+import java.time.OffsetDateTime;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
 import pe.utec.fullstack.domain.business.EstadoSolicitud;
 import pe.utec.fullstack.domain.business.ResultadoPrecalificacion;
 import pe.utec.fullstack.domain.business.SolicitudFinanciamiento;
-
 import pe.utec.fullstack.repository.SolicitudFinanciamientoRepository;
-
-import java.time.OffsetDateTime;
-import java.util.List;
 
 @Service
 public class SolicitudFinanciamientoService {
@@ -19,10 +19,12 @@ public class SolicitudFinanciamientoService {
     public SolicitudFinanciamientoService(SolicitudFinanciamientoRepository solicitudFinanciamientoRepository) {
         this.solicitudFinanciamientoRepository = solicitudFinanciamientoRepository;
     }
-    public SolicitudFinanciamiento crear(SolicitudFinanciamiento solicitud) {
+
+    public SolicitudFinanciamiento crear(SolicitudFinanciamiento solicitud, Integer creadorUsuarioId) {
         if (solicitud.getConsentimientoAt() == null) {
             throw new IllegalArgumentException("Se requiere el consentimiento del cliente (Ley N.° 29733)");
         }
+        solicitud.setCreadoPorUsuarioId(creadorUsuarioId);
         if (solicitud.getMoneda() == null) {
             solicitud.setMoneda("PEN");
         }
@@ -33,13 +35,20 @@ public class SolicitudFinanciamientoService {
         solicitud.setActualizadoAt(OffsetDateTime.now());
         return this.solicitudFinanciamientoRepository.guardar(solicitud);
     }
+
     public SolicitudFinanciamiento obtenerPorId(Integer id) {
         return this.solicitudFinanciamientoRepository.buscarPorId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitud de financiamiento no encontrada: " + id));
     }
+
     public List<SolicitudFinanciamiento> listar() {
         return this.solicitudFinanciamientoRepository.listarActivas();
     }
+
+    public List<SolicitudFinanciamiento> listarDeUsuario(Integer usuarioId) {
+        return this.solicitudFinanciamientoRepository.listarActivasPorUsuario(usuarioId);
+    }
+
     public SolicitudFinanciamiento actualizar(Integer id, SolicitudFinanciamiento solicitud) {
         SolicitudFinanciamiento existente = this.obtenerPorId(id);
         if (solicitud.getEstado() != null) {
@@ -51,6 +60,7 @@ public class SolicitudFinanciamientoService {
         existente.setActualizadoAt(OffsetDateTime.now());
         return this.solicitudFinanciamientoRepository.guardar(existente);
     }
+
     public void eliminar(Integer id) {
         SolicitudFinanciamiento existente = this.obtenerPorId(id);
         existente.setAlta((short) 0);

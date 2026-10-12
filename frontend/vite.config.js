@@ -10,8 +10,10 @@ const htmlPages = [
   "cart.html",
   "login.html",
   "mantenimientos.html",
+  "solicitudes.html",
+  "registro-solicitud.html",
+  "resultado_evaluacion.html",
   "signout.html",
-  "thanks.html",
 ];
 
 export default defineConfig({
@@ -25,6 +27,11 @@ export default defineConfig({
           resolve(frontendDirectory, "dist/scripts"),
           { recursive: true },
         );
+        await cp(
+          resolve(frontendDirectory, "img"),
+          resolve(frontendDirectory, "dist/img"),
+          { recursive: true },
+        );
       },
     },
   ],
@@ -33,7 +40,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://localhost:8080",
+        target: "http://localhost:3000",
         changeOrigin: true,
       },
     },

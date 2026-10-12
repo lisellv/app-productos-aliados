@@ -9,7 +9,7 @@ if (!footer) {
     <div><h3>Compañía</h3><ul><li>Quiénes somos</li><li>Términos y condiciones</li><li>Privacidad</li></ul></div>
     <div><h3>Conecta</h3><ul><li>Contáctanos</li><li>Facebook</li><li>Instagram</li></ul></div>
     <div><h3 id="suscripcionMensaje">Suscríbete a nuestro boletín</h3><input id="correoSuscripcion" type="email" placeholder="Tu correo electrónico" required><button id="suscribirseBtn" type="button">Suscribirse</button></div>
-    <p class="copy">Todos los derechos reservados © Financia .PE</p>
+    <p class="copy">Todos los derechos reservados © Financia Minegocio.PE</p>
   </footer>
 `;
 

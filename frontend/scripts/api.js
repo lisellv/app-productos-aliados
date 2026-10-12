@@ -3,6 +3,7 @@ const API_BASE_URL = (window.__ENV__?.API_BASE_URL || "").replace(/\/$/, "");
 const AUTH_TOKEN_KEY = "tech-store-auth-token";
 
 async function apiRequest(path, options = {}) {
+  const { skipAuth = false, ...requestOptions } = options;
   const headers = new Headers(options.headers || {});
   headers.set("Accept", "application/json");
 
@@ -11,12 +12,12 @@ async function apiRequest(path, options = {}) {
   }
 
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
-  if (token) {
+  if (token && !skipAuth) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
+    ...requestOptions,
     headers,
   });
 
@@ -72,6 +73,6 @@ function logout() {
 }
 
 async function getProducts() {
-  const result = await apiRequest("/api/productos");
+  const result = await apiRequest("/api/productos", { skipAuth: true });
   return result.content || result.data || result.items || result;
 }

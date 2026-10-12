@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
@@ -29,8 +30,13 @@ public class OpenApiConfig {
     GlobalOpenApiCustomizer bearerSecurityForProtectedEndpoints() {
         return openApi -> openApi.getPaths().forEach((path, pathItem) -> {
             if (path.startsWith("/api/") && !path.startsWith("/api/auth/")) {
-                pathItem.readOperations().forEach(operation -> operation.addSecurityItem(
-                        new SecurityRequirement().addList(BEARER_AUTH)));
+                pathItem.readOperationsMap().forEach((method, operation) -> {
+                    boolean publicCatalogRead = method == PathItem.HttpMethod.GET
+                            && (path.startsWith("/api/productos") || path.startsWith("/api/categorias"));
+                    if (!publicCatalogRead) {
+                        operation.addSecurityItem(new SecurityRequirement().addList(BEARER_AUTH));
+                    }
+                });
             }
         });
     }
