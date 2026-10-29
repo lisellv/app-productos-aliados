@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: app-productos-aliados-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://app-productos-aliados.onrender.com/api
+    routes:
+      - type: rewrite
+        source: /
+        destination: /index.html
+      - type: rewrite
+        source: /cart
+        destination: /index.html
+      - type: rewrite
+        source: /products
+        destination: /index.html
+      - type: rewrite
+        source: /login
+        destination: /index.html
+      - type: rewrite
+        source: /register
+        destination: /index.html
+      - type: rewrite
+        source: /requests
+        destination: /index.html
+      - type: rewrite
+        source: /requests/new
+        destination: /index.html
+      - type: rewrite
+        source: /evaluation
+        destination: /index.html
+      - type: rewrite
+        source: /admin
+        destination: /index.html

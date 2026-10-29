@@ -4,8 +4,6 @@
 include:
   - nivel2-db-backend.yml # trae "db" y "backend" (el nivel 2 ya incluye al nivel 1)
 services:
-  backend:
-    ports: !reset []
   frontend:
     build: ./frontend # carpeta donde está el Dockerfile del frontend
     restart: unless-stopped

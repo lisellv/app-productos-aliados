@@ -101,16 +101,36 @@ Para ejecutar el JAR compilado:
 java -jar backend/build/libs/app-productos-aliados-back-end-0.0.1-SNAPSHOT.jar
 ```
 
-## Conectar a PostgreSQL de Render (opcional)
+## Conectar a PostgreSQL administrado (Render o Aiven)
 
-No guardes la URL completa ni la contrasena de Render en este archivo ni en Git. Usa la URL JDBC con el host y la base de Render, y configura usuario y contrasena por separado. `sslmode=require` habilita TLS para la conexion externa.
+El backend usa PostgreSQL y Flyway ejecuta las migraciones versionadas al iniciar. Para conectar Render a Aiven, configura en el servicio web de Render las variables `DB_URL`, `DB_USER` y `DB_PASSWORD`. En `DB_URL`, usa el host, puerto y nombre de base de Aiven con `sslmode=require`, por ejemplo `jdbc:postgresql://HOST_AIVEN:PUERTO/BASE?sslmode=require`. No guardes la URI de servicio ni contrasenas en Git, archivos locales o capturas.
+
+Para reemplazar la base de Render y conservar sus datos:
+
+1. Crea una base PostgreSQL vacia en Aiven, compatible con PostgreSQL 16 o posterior.
+2. Deten temporalmente las escrituras de la aplicacion para no perder operaciones nuevas durante la copia.
+3. Instala las herramientas cliente de PostgreSQL (`pg_dump`, `pg_restore` y `psql`) en una maquina segura con acceso a ambas bases.
+4. Ejecuta `./backend/scripts/migrar-render-a-aiven.ps1` desde la raiz del repositorio. El script solicita hosts, bases, usuarios y contrasenas; las contrasenas se solicitan como entrada segura y no deben pasarse como argumentos.
+5. En Render, actualiza `DB_URL`, `DB_USER` y `DB_PASSWORD` con los datos de Aiven y despliega la ultima version del backend.
+6. Revisa los logs del backend y confirma que Flyway aplico las migraciones pendientes. En Aiven, confirma la version con la consulta siguiente:
+
+```sql
+SELECT version, description, success
+FROM public.flyway_schema_history
+ORDER BY installed_rank DESC
+LIMIT 1;
+```
+
+La version esperada en este codigo es `28` (`link profiles from unambiguous requests`). Si la restauracion se interrumpe, no apuntes Render a la base parcialmente restaurada; vuelve a crear una base destino vacia antes de repetirla. Mantén una copia de seguridad independiente antes de iniciar el cambio.
+
+La migracion de copia ajusta el checksum de Flyway V27 unicamente cuando encuentra el valor anterior conocido (`-825257792`), necesario porque el archivo V27 fue normalizado despues de aplicarse. No cambia filas de negocio. Si encuentra otro checksum, se detiene para evitar una reparacion automatica inesperada.
 
 PowerShell:
 
 ```powershell
-$env:DB_URL = "jdbc:postgresql://HOST_RENDER:5432/NOMBRE_BASE?sslmode=require"
-$env:DB_USER = "USUARIO_RENDER"
-$securePassword = Read-Host "Contrasena de PostgreSQL" -AsSecureString
+$env:DB_URL = "jdbc:postgresql://HOST_AIVEN:PUERTO/BASE?sslmode=require"
+$env:DB_USER = "USUARIO_AIVEN"
+$securePassword = Read-Host "Contrasena de Aiven" -AsSecureString
 $env:DB_PASSWORD = [System.Net.NetworkCredential]::new("", $securePassword).Password
 $env:PORT = "8080"
 .\backend\gradlew.bat -p backend bootRun
@@ -119,13 +139,21 @@ $env:PORT = "8080"
 Linux o macOS:
 
 ```bash
-export DB_URL="jdbc:postgresql://HOST_RENDER:5432/NOMBRE_BASE?sslmode=require"
-export DB_USER="USUARIO_RENDER"
-read -rsp "Contrasena de PostgreSQL: " DB_PASSWORD; printf '\n'
+export DB_URL="jdbc:postgresql://HOST_AIVEN:PUERTO/BASE?sslmode=require"
+export DB_USER="USUARIO_AIVEN"
+read -rsp "Contrasena de Aiven: " DB_PASSWORD; printf '\n'
 export DB_PASSWORD
 export PORT="8080"
 ./backend/gradlew -p backend bootRun
 unset DB_PASSWORD
 ```
 
-Reemplaza `HOST_RENDER`, `NOMBRE_BASE` y `USUARIO_RENDER` con los valores de Render. No pegues la URL original con credenciales en comandos, archivos versionados ni capturas.
+Reemplaza los valores de ejemplo con los datos de conexion de Aiven, pero no incluyas la contrasena dentro de `DB_URL`.
+
+## Publicar frontend en Render
+
+El archivo `render.yaml` define solo el Static Site del frontend. El backend y PostgreSQL existentes no se recrean. En Render, crea o sincroniza un Blueprint desde este repositorio y confirma el servicio `app-productos-aliados-frontend`.
+
+En el servicio web backend existente, conserva las variables actuales de base de datos y agrega `CORS_ALLOWED_ORIGINS` con el origen exacto del Static Site, por ejemplo `https://app-productos-aliados-frontend.onrender.com`. No uses comodines para permitir cualquier origen. Guarda el cambio para que Render reinicie el backend.
+
+El build del frontend usa `VITE_API_URL` para llamar al backend por HTTPS. Después del despliegue, comprueba `/`, `/cart` y `/requests/new` en el Static Site, además de `https://app-productos-aliados.onrender.com/actuator/health`. Para confirmar que la base existente se conservó y Flyway terminó, revisa los logs del backend y consulta `flyway_schema_history` en el dashboard PostgreSQL de Render.
