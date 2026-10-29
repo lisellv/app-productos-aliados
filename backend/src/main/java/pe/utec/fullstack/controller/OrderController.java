@@ -23,37 +23,37 @@ import pe.utec.fullstack.domain.OrderService;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    private final OrderService orderService;
+    private final OrderService servicioOrden;
 
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
+    public OrderController(OrderService servicioOrden) {
+        this.servicioOrden = servicioOrden;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderResponse createOrder(@AuthenticationPrincipal UserInfoDetails user) {
-        return orderService.createOrder(user.getId());
+    public OrderResponse createOrder(@AuthenticationPrincipal UserInfoDetails usuarioAutenticado) {
+        return servicioOrden.createOrder(usuarioAutenticado.getId());
     }
 
     @GetMapping("/my")
-    public List<OrderResponse> getMyOrders(@AuthenticationPrincipal UserInfoDetails user) {
-        return orderService.getMyOrders(user.getId());
+    public List<OrderResponse> getMyOrders(@AuthenticationPrincipal UserInfoDetails usuarioAutenticado) {
+        return servicioOrden.getMyOrders(usuarioAutenticado.getId());
     }
 
     @GetMapping
     public List<OrderResponse> getAllOrders() {
-        return orderService.getAllOrders();
+        return servicioOrden.getAllOrders();
     }
 
     @GetMapping("/{id}")
-    public OrderResponse getOrder(@PathVariable Integer id) {
-        return orderService.getOrder(id);
+    public OrderResponse getOrder(@PathVariable("id") Integer idOrden) {
+        return servicioOrden.getOrder(idOrden);
     }
 
     @PutMapping("/{id}/status")
     public OrderResponse updateStatus(
-            @PathVariable Integer id,
-            @Valid @RequestBody UpdateOrderStatusRequest request) {
-        return orderService.updateStatus(id, request.status());
+            @PathVariable("id") Integer idOrden,
+            @Valid @RequestBody UpdateOrderStatusRequest solicitud) {
+        return servicioOrden.updateStatus(idOrden, solicitud.status());
     }
 }

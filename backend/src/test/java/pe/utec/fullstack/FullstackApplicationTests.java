@@ -15,10 +15,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import pe.utec.fullstack.repository.RolJpaEntity;
-import pe.utec.fullstack.repository.RolJpaRepository;
-import pe.utec.fullstack.repository.UsuarioJpaEntity;
-import pe.utec.fullstack.repository.UsuarioJpaRepository;
+import pe.utec.fullstack.repository.EntidadRol;
+import pe.utec.fullstack.repository.RepositorioDatosRol;
+import pe.utec.fullstack.repository.EntidadUsuario;
+import pe.utec.fullstack.repository.RepositorioDatosUsuario;
 
 @Testcontainers
 @SpringBootTest
@@ -31,10 +31,10 @@ class FullstackApplicationTests {
 	PasswordEncoder passwordEncoder;
 
 	@Autowired
-	RolJpaRepository rolRepository;
+	RepositorioDatosRol rolRepository;
 
 	@Autowired
-	UsuarioJpaRepository usuarioRepository;
+	RepositorioDatosUsuario usuarioRepository;
 
 	@Container
 	static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
@@ -64,12 +64,12 @@ class FullstackApplicationTests {
 	@Test
 	void loginReturnsJwtForValidCredentials() throws Exception {
 		var now = OffsetDateTime.now();
-		var role = rolRepository.saveAndFlush(RolJpaEntity.builder()
+		var role = rolRepository.saveAndFlush(EntidadRol.builder()
 				.nombreRol("AUTH_TEST_ADMIN")
 				.alta((short) 1)
 				.creadoAt(now)
 				.build());
-		usuarioRepository.saveAndFlush(UsuarioJpaEntity.builder()
+		usuarioRepository.saveAndFlush(EntidadUsuario.builder()
 				.rolId(role.getId())
 				.correoElectronico("login-test@example.invalid")
 				.passwordHash(passwordEncoder.encode("test-password"))

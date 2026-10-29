@@ -13,13 +13,13 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 @Configuration
 public class OpenApiConfig {
 
-    private static final String BEARER_AUTH = "bearerAuth";
+    private static final String ESQUEMA_AUTORIZACION = "bearerAuth";
 
     @Bean
     OpenAPI applicationOpenAPI() {
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes(
-                        BEARER_AUTH,
+                        ESQUEMA_AUTORIZACION,
                         new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
@@ -28,13 +28,13 @@ public class OpenApiConfig {
 
     @Bean
     GlobalOpenApiCustomizer bearerSecurityForProtectedEndpoints() {
-        return openApi -> openApi.getPaths().forEach((path, pathItem) -> {
-            if (path.startsWith("/api/") && !path.startsWith("/api/auth/")) {
-                pathItem.readOperationsMap().forEach((method, operation) -> {
-                    boolean publicCatalogRead = method == PathItem.HttpMethod.GET
-                            && (path.startsWith("/api/productos") || path.startsWith("/api/categorias"));
-                    if (!publicCatalogRead) {
-                        operation.addSecurityItem(new SecurityRequirement().addList(BEARER_AUTH));
+        return documentoApi -> documentoApi.getPaths().forEach((ruta, elementoRuta) -> {
+            if (ruta.startsWith("/api/") && !ruta.startsWith("/api/auth/")) {
+                elementoRuta.readOperationsMap().forEach((metodoHttp, operacion) -> {
+                    boolean lecturaPublicaCatalogo = metodoHttp == PathItem.HttpMethod.GET
+                            && (ruta.startsWith("/api/productos") || ruta.startsWith("/api/categorias"));
+                    if (!lecturaPublicaCatalogo) {
+                        operacion.addSecurityItem(new SecurityRequirement().addList(ESQUEMA_AUTORIZACION));
                     }
                 });
             }

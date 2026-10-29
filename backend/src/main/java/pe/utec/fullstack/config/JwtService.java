@@ -26,30 +26,30 @@ import pe.utec.fullstack.controller.auth.UserInfoDetails;
 public class JwtService {
 
     @Value("${jwt.secret}")
-    private String secret;
+    private String secretoJwt;
 
-    public String generateToken(String username) { // Use email as username
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+    public String generateToken(String nombreUsuario) {
+        Map<String, Object> afirmaciones = new HashMap<>();
+        return createToken(afirmaciones, nombreUsuario);
     }
 
-    public String generateSpecialToken(String username, Authentication authentication) {
-        Map<String, Object> claims = new HashMap<>();
+    public String generateSpecialToken(String nombreUsuario, Authentication autenticacion) {
+        Map<String, Object> afirmaciones = new HashMap<>();
 
-        UserInfoDetails auth = (UserInfoDetails) authentication.getPrincipal();
-        claims.put("id", auth.getId());
-        claims.put("roles", authentication.getAuthorities().stream()
+        UserInfoDetails usuarioAutenticado = (UserInfoDetails) autenticacion.getPrincipal();
+        afirmaciones.put("id", usuarioAutenticado.getId());
+        afirmaciones.put("roles", autenticacion.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(java.util.stream.Collectors.joining(",")));
 
-        return createToken(claims, username);
+        return createToken(afirmaciones, nombreUsuario);
 
     }
 
-    private String createToken(Map<String, Object> claims, String username) {
+    private String createToken(Map<String, Object> afirmaciones, String nombreUsuario) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(username)
+                .setClaims(afirmaciones)
+                .setSubject(nombreUsuario)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
@@ -57,81 +57,81 @@ public class JwtService {
     }
 
     private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        byte[] bytesClave = Decoders.BASE64.decode(secretoJwt);
+        return Keys.hmacShaKeyFor(bytesClave);
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public String extractUsername(String tokenJwt) {
+        return extractClaim(tokenJwt, Claims::getSubject);
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public Date extractExpiration(String tokenJwt) {
+        return extractClaim(tokenJwt, Claims::getExpiration);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+    public <T> T extractClaim(String tokenJwt, Function<Claims, T> resolverAfirmacion) {
+        final Claims afirmaciones = extractAllClaims(tokenJwt);
+        return resolverAfirmacion.apply(afirmaciones);
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String tokenJwt) {
         return Jwts.parser()
                 .setSigningKey(getSignKey())
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(tokenJwt)
                 .getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    private Boolean isTokenExpired(String tokenJwt) {
+        return extractExpiration(tokenJwt).before(new Date());
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String tokenJwt, UserDetails detallesUsuario) {
+        final String nombreUsuario = extractUsername(tokenJwt);
+        return (nombreUsuario.equals(detallesUsuario.getUsername()) && !isTokenExpired(tokenJwt));
     }
 
-    public Boolean validateToken(String token) {
-        final String username = extractUsername(token);
-        return username != null;
+    public Boolean validateToken(String tokenJwt) {
+        final String nombreUsuario = extractUsername(tokenJwt);
+        return nombreUsuario != null;
     }
 
-    public String refreshToken(String jwt) {
-        Claims old = Jwts.parser()
+    public String refreshToken(String tokenJwt) {
+        Claims afirmacionesAnteriores = Jwts.parser()
                 .setSigningKey(getSignKey())
                 .build()
-                .parseClaimsJws(jwt)
+                .parseClaimsJws(tokenJwt)
                 .getBody();
 
         return Jwts.builder()
-                .setClaims(old)
-                .setSubject(old.getSubject())
+                .setClaims(afirmacionesAnteriores)
+                .setSubject(afirmacionesAnteriores.getSubject())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Collection<? extends GrantedAuthority> extractRoles(String token) {
-        Claims claims = extractAllClaims(token);
+    public Collection<? extends GrantedAuthority> extractRoles(String tokenJwt) {
+        Claims afirmaciones = extractAllClaims(tokenJwt);
 
-        String roles = claims.get("roles", String.class);
-        if (roles == null || roles.isBlank()) {
+        String nombresRoles = afirmaciones.get("roles", String.class);
+        if (nombresRoles == null || nombresRoles.isBlank()) {
             return List.of();
         }
-        return Arrays.stream(roles.split(","))
-                .filter(role -> !role.isBlank())
+        return Arrays.stream(nombresRoles.split(","))
+                .filter(nombreRol -> !nombreRol.isBlank())
                 .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
                 .toList();
     }
 
-    public UserInfoDetails extractUserDetails(String token) {
-        Claims claims = extractAllClaims(token);
+    public UserInfoDetails extractUserDetails(String tokenJwt) {
+        Claims afirmaciones = extractAllClaims(tokenJwt);
 
         return new UserInfoDetails(
-                claims.get("id", Integer.class),
-                claims.getSubject(),
+                afirmaciones.get("id", Integer.class),
+                afirmaciones.getSubject(),
                 null,
-                extractRoles(token));
+                extractRoles(tokenJwt));
     }
 }

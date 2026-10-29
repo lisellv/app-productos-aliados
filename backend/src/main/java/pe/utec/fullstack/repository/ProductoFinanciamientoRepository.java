@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class ProductoFinanciamientoRepository {
 
-    private final ProductoFinanciamientoJpaRepository productoFinanciamientoJpaRepository;
+    private final RepositorioDatosProductoFinanciamiento productoFinanciamientoJpaRepository;
     private final PersistenceMapper mapper;
 
-    public ProductoFinanciamientoRepository(ProductoFinanciamientoJpaRepository productoFinanciamientoJpaRepository,
+    public ProductoFinanciamientoRepository(RepositorioDatosProductoFinanciamiento productoFinanciamientoJpaRepository,
                                                      PersistenceMapper mapper) {
         this.productoFinanciamientoJpaRepository = productoFinanciamientoJpaRepository;
         this.mapper = mapper;

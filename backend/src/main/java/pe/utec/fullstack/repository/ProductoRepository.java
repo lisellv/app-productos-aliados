@@ -10,10 +10,10 @@ import pe.utec.fullstack.domain.business.Producto;
 @Repository
 public class ProductoRepository {
 
-    private final ProductoJpaRepository productoJpaRepository;
+    private final RepositorioDatosProducto productoJpaRepository;
     private final PersistenceMapper mapper;
 
-    public ProductoRepository(ProductoJpaRepository productoJpaRepository, PersistenceMapper mapper) {
+    public ProductoRepository(RepositorioDatosProducto productoJpaRepository, PersistenceMapper mapper) {
         this.productoJpaRepository = productoJpaRepository;
         this.mapper = mapper;
     }

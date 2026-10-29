@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class TipoFinanciamientoRepository {
 
-    private final TipoFinanciamientoJpaRepository tipoFinanciamientoJpaRepository;
+    private final RepositorioDatosTipoFinanciamiento tipoFinanciamientoJpaRepository;
     private final PersistenceMapper mapper;
 
-    public TipoFinanciamientoRepository(TipoFinanciamientoJpaRepository tipoFinanciamientoJpaRepository,
+    public TipoFinanciamientoRepository(RepositorioDatosTipoFinanciamiento tipoFinanciamientoJpaRepository,
                                                  PersistenceMapper mapper) {
         this.tipoFinanciamientoJpaRepository = tipoFinanciamientoJpaRepository;
         this.mapper = mapper;

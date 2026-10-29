@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class ListaInteresRepository {
 
-    private final ListaInteresJpaRepository listaInteresJpaRepository;
+    private final RepositorioDatosListaInteres listaInteresJpaRepository;
     private final PersistenceMapper mapper;
 
-    public ListaInteresRepository(ListaInteresJpaRepository listaInteresJpaRepository, PersistenceMapper mapper) {
+    public ListaInteresRepository(RepositorioDatosListaInteres listaInteresJpaRepository, PersistenceMapper mapper) {
         this.listaInteresJpaRepository = listaInteresJpaRepository;
         this.mapper = mapper;
     }

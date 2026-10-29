@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class UsuarioRepository {
 
-    private final UsuarioJpaRepository usuarioJpaRepository;
+    private final RepositorioDatosUsuario usuarioJpaRepository;
     private final PersistenceMapper mapper;
 
-    public UsuarioRepository(UsuarioJpaRepository usuarioJpaRepository, PersistenceMapper mapper) {
+    public UsuarioRepository(RepositorioDatosUsuario usuarioJpaRepository, PersistenceMapper mapper) {
         this.usuarioJpaRepository = usuarioJpaRepository;
         this.mapper = mapper;
     }

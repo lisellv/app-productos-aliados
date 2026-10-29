@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class ReglaPrecalificacionRepository {
 
-    private final ReglaPrecalificacionJpaRepository reglaPrecalificacionJpaRepository;
+    private final RepositorioDatosReglaPrecalificacion reglaPrecalificacionJpaRepository;
     private final PersistenceMapper mapper;
 
-    public ReglaPrecalificacionRepository(ReglaPrecalificacionJpaRepository reglaPrecalificacionJpaRepository,
+    public ReglaPrecalificacionRepository(RepositorioDatosReglaPrecalificacion reglaPrecalificacionJpaRepository,
                                                    PersistenceMapper mapper) {
         this.reglaPrecalificacionJpaRepository = reglaPrecalificacionJpaRepository;
         this.mapper = mapper;

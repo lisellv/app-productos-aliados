@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class CategoriaRepository {
 
-    private final CategoriaJpaRepository categoriaJpaRepository;
+    private final RepositorioDatosCategoria categoriaJpaRepository;
     private final PersistenceMapper mapper;
 
-    public CategoriaRepository(CategoriaJpaRepository categoriaJpaRepository, PersistenceMapper mapper) {
+    public CategoriaRepository(RepositorioDatosCategoria categoriaJpaRepository, PersistenceMapper mapper) {
         this.categoriaJpaRepository = categoriaJpaRepository;
         this.mapper = mapper;
     }

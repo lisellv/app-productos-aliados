@@ -20,14 +20,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import jakarta.persistence.EntityNotFoundException;
 import pe.utec.fullstack.controller.request.AddCartItemRequest;
 import pe.utec.fullstack.domain.business.Producto;
-import pe.utec.fullstack.repository.CartItemJpaEntity;
-import pe.utec.fullstack.repository.CartItemJpaRepository;
+import pe.utec.fullstack.repository.EntidadArticuloCarrito;
+import pe.utec.fullstack.repository.RepositorioDatosArticuloCarrito;
 
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
 
     @Mock
-    private CartItemJpaRepository cartRepository;
+    private RepositorioDatosArticuloCarrito cartRepository;
 
     @Mock
     private ProductoService productoService;
@@ -45,7 +45,7 @@ class CartServiceTest {
                 .estado("activo")
                 .alta((short) 1)
                 .build();
-        var item = CartItemJpaEntity.builder()
+        var item = EntidadArticuloCarrito.builder()
                 .id(9)
                 .usuarioId(4)
                 .productoId(15)
@@ -55,7 +55,7 @@ class CartServiceTest {
                 .build();
         when(productoService.obtenerPorId(15)).thenReturn(product);
         when(cartRepository.findByUsuarioIdAndProductoId(4, 15)).thenReturn(Optional.of(item));
-        when(cartRepository.saveAndFlush(any(CartItemJpaEntity.class))).thenAnswer(call -> call.getArgument(0));
+        when(cartRepository.saveAndFlush(any(EntidadArticuloCarrito.class))).thenAnswer(call -> call.getArgument(0));
 
         var response = cartService.addItem(4, new AddCartItemRequest(15, 3));
 

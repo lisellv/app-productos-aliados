@@ -9,16 +9,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import pe.utec.fullstack.repository.RolJpaRepository;
-import pe.utec.fullstack.repository.UsuarioJpaRepository;
+import pe.utec.fullstack.repository.RepositorioDatosRol;
+import pe.utec.fullstack.repository.RepositorioDatosUsuario;
 
 @Service
 public class UsuarioDetailsService implements UserDetailsService {
 
-    private final UsuarioJpaRepository usuarioRepository;
-    private final RolJpaRepository rolRepository;
+    private final RepositorioDatosUsuario usuarioRepository;
+    private final RepositorioDatosRol rolRepository;
 
-    public UsuarioDetailsService(UsuarioJpaRepository usuarioRepository, RolJpaRepository rolRepository) {
+    public UsuarioDetailsService(RepositorioDatosUsuario usuarioRepository, RepositorioDatosRol rolRepository) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
     }
@@ -30,15 +30,15 @@ public class UsuarioDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         var rol = rolRepository.findByIdAndAlta(usuario.getRolId(), (short) 1)
                 .orElseThrow(() -> new UsernameNotFoundException("Rol de usuario no encontrado"));
-        String roleName = rol.getNombreRol().toUpperCase(Locale.ROOT);
-        if ("ADMINISTRADOR".equals(roleName)) {
-            roleName = "ADMIN";
+        String nombreRol = rol.getNombreRol().toUpperCase(Locale.ROOT);
+        if ("ADMINISTRADOR".equals(nombreRol)) {
+            nombreRol = "ADMIN";
         }
 
         return new UserInfoDetails(
                 usuario.getId(),
                 usuario.getCorreoElectronico(),
                 usuario.getPasswordHash(),
-            List.of(new SimpleGrantedAuthority("ROLE_" + roleName)));
+                List.of(new SimpleGrantedAuthority("ROLE_" + nombreRol)));
     }
 }

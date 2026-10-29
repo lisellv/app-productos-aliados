@@ -21,63 +21,63 @@ import pe.utec.fullstack.domain.business.Usuario;
 @Mapper(componentModel = "spring")
 public interface PersistenceMapper {
 
-    Aliado toDomain(AliadoJpaEntity entity);
+    Aliado toDomain(EntidadAliado entity);
 
-    AliadoJpaEntity toEntity(Aliado domain);
+    EntidadAliado toEntity(Aliado domain);
 
-    Campana toDomain(CampanaJpaEntity entity);
+    Campana toDomain(EntidadCampana entity);
 
-    CampanaJpaEntity toEntity(Campana domain);
+    EntidadCampana toEntity(Campana domain);
 
-    CampanaProducto toDomain(CampanaProductoJpaEntity entity);
+    CampanaProducto toDomain(EntidadCampanaProducto entity);
 
-    CampanaProductoJpaEntity toEntity(CampanaProducto domain);
+    EntidadCampanaProducto toEntity(CampanaProducto domain);
 
-    Categoria toDomain(CategoriaJpaEntity entity);
+    Categoria toDomain(EntidadCategoria entity);
 
-    CategoriaJpaEntity toEntity(Categoria domain);
+    EntidadCategoria toEntity(Categoria domain);
 
-    Cliente toDomain(ClienteJpaEntity entity);
+    Cliente toDomain(EntidadCliente entity);
 
-    ClienteJpaEntity toEntity(Cliente domain);
+    EntidadCliente toEntity(Cliente domain);
 
-    DerivacionBanco toDomain(DerivacionBancoJpaEntity entity);
+    DerivacionBanco toDomain(EntidadDerivacionBanco entity);
 
-    DerivacionBancoJpaEntity toEntity(DerivacionBanco domain);
+    EntidadDerivacionBanco toEntity(DerivacionBanco domain);
 
-    HistorialSolicitud toDomain(HistorialSolicitudJpaEntity entity);
+    HistorialSolicitud toDomain(EntidadHistorialSolicitud entity);
 
-    HistorialSolicitudJpaEntity toEntity(HistorialSolicitud domain);
+    EntidadHistorialSolicitud toEntity(HistorialSolicitud domain);
 
-    ListaInteres toDomain(ListaInteresJpaEntity entity);
+    ListaInteres toDomain(EntidadListaInteres entity);
 
-    ListaInteresJpaEntity toEntity(ListaInteres domain);
+    EntidadListaInteres toEntity(ListaInteres domain);
 
-    ProductoFinanciamiento toDomain(ProductoFinanciamientoJpaEntity entity);
+    ProductoFinanciamiento toDomain(EntidadProductoFinanciamiento entity);
 
-    ProductoFinanciamientoJpaEntity toEntity(ProductoFinanciamiento domain);
+    EntidadProductoFinanciamiento toEntity(ProductoFinanciamiento domain);
 
-    Producto toDomain(ProductoJpaEntity entity);
+    Producto toDomain(EntidadProducto entity);
 
-    ProductoJpaEntity toEntity(Producto domain);
+    EntidadProducto toEntity(Producto domain);
 
-    ReglaPrecalificacion toDomain(ReglaPrecalificacionJpaEntity entity);
+    ReglaPrecalificacion toDomain(EntidadReglaPrecalificacion entity);
 
-    ReglaPrecalificacionJpaEntity toEntity(ReglaPrecalificacion domain);
+    EntidadReglaPrecalificacion toEntity(ReglaPrecalificacion domain);
 
-    Rol toDomain(RolJpaEntity entity);
+    Rol toDomain(EntidadRol entity);
 
-    RolJpaEntity toEntity(Rol domain);
+    EntidadRol toEntity(Rol domain);
 
-    SolicitudFinanciamiento toDomain(SolicitudFinanciamientoJpaEntity entity);
+    SolicitudFinanciamiento toDomain(EntidadSolicitudFinanciamiento entity);
 
-    SolicitudFinanciamientoJpaEntity toEntity(SolicitudFinanciamiento domain);
+    EntidadSolicitudFinanciamiento toEntity(SolicitudFinanciamiento domain);
 
-    TipoFinanciamiento toDomain(TipoFinanciamientoJpaEntity entity);
+    TipoFinanciamiento toDomain(EntidadTipoFinanciamiento entity);
 
-    TipoFinanciamientoJpaEntity toEntity(TipoFinanciamiento domain);
+    EntidadTipoFinanciamiento toEntity(TipoFinanciamiento domain);
 
-    Usuario toDomain(UsuarioJpaEntity entity);
+    Usuario toDomain(EntidadUsuario entity);
 
-    UsuarioJpaEntity toEntity(Usuario domain);
+    EntidadUsuario toEntity(Usuario domain);
 }

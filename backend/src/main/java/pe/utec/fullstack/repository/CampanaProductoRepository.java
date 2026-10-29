@@ -10,25 +10,25 @@ import java.util.Optional;
 @Repository
 public class CampanaProductoRepository {
 
-    private final CampanaProductoJpaRepository campanaProductoJpaRepository;
+    private final RepositorioDatosCampanaProducto campanaRepositorioDatosProducto;
     private final PersistenceMapper mapper;
 
-    public CampanaProductoRepository(CampanaProductoJpaRepository campanaProductoJpaRepository,
+    public CampanaProductoRepository(RepositorioDatosCampanaProducto campanaRepositorioDatosProducto,
                                               PersistenceMapper mapper) {
-        this.campanaProductoJpaRepository = campanaProductoJpaRepository;
+        this.campanaRepositorioDatosProducto = campanaRepositorioDatosProducto;
         this.mapper = mapper;
     }
     public CampanaProducto guardar(CampanaProducto campanaProducto) {
         return this.mapper.toDomain(
-                this.campanaProductoJpaRepository.save(this.mapper.toEntity(campanaProducto))
+                this.campanaRepositorioDatosProducto.save(this.mapper.toEntity(campanaProducto))
         );
     }
     public Optional<CampanaProducto> buscarPorClave(Integer campanaId, Integer productoId) {
-        return this.campanaProductoJpaRepository.findByCampanaIdAndProductoId(campanaId, productoId)
+        return this.campanaRepositorioDatosProducto.findByCampanaIdAndProductoId(campanaId, productoId)
                 .map(this.mapper::toDomain);
     }
     public List<CampanaProducto> listarActivos() {
-        return this.campanaProductoJpaRepository.findByAlta((short) 1).stream()
+        return this.campanaRepositorioDatosProducto.findByAlta((short) 1).stream()
                 .map(this.mapper::toDomain)
                 .toList();
     }

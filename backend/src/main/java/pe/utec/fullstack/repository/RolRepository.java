@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class RolRepository {
 
-    private final RolJpaRepository rolJpaRepository;
+    private final RepositorioDatosRol rolJpaRepository;
     private final PersistenceMapper mapper;
 
-    public RolRepository(RolJpaRepository rolJpaRepository, PersistenceMapper mapper) {
+    public RolRepository(RepositorioDatosRol rolJpaRepository, PersistenceMapper mapper) {
         this.rolJpaRepository = rolJpaRepository;
         this.mapper = mapper;
     }

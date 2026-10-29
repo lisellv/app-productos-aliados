@@ -10,10 +10,10 @@ import pe.utec.fullstack.domain.business.SolicitudFinanciamiento;
 @Repository
 public class SolicitudFinanciamientoRepository {
 
-    private final SolicitudFinanciamientoJpaRepository solicitudFinanciamientoJpaRepository;
+    private final RepositorioDatosSolicitudFinanciamiento solicitudFinanciamientoJpaRepository;
     private final PersistenceMapper mapper;
 
-    public SolicitudFinanciamientoRepository(SolicitudFinanciamientoJpaRepository solicitudFinanciamientoJpaRepository,
+    public SolicitudFinanciamientoRepository(RepositorioDatosSolicitudFinanciamiento solicitudFinanciamientoJpaRepository,
             PersistenceMapper mapper) {
         this.solicitudFinanciamientoJpaRepository = solicitudFinanciamientoJpaRepository;
         this.mapper = mapper;

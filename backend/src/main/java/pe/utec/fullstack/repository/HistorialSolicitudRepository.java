@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class HistorialSolicitudRepository {
 
-    private final HistorialSolicitudJpaRepository historialSolicitudJpaRepository;
+    private final RepositorioDatosHistorialSolicitud historialSolicitudJpaRepository;
     private final PersistenceMapper mapper;
 
-    public HistorialSolicitudRepository(HistorialSolicitudJpaRepository historialSolicitudJpaRepository,
+    public HistorialSolicitudRepository(RepositorioDatosHistorialSolicitud historialSolicitudJpaRepository,
                                                  PersistenceMapper mapper) {
         this.historialSolicitudJpaRepository = historialSolicitudJpaRepository;
         this.mapper = mapper;

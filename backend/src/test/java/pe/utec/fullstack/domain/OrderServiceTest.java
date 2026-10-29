@@ -19,23 +19,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import pe.utec.fullstack.domain.business.OrderStatus;
 import pe.utec.fullstack.domain.business.Producto;
-import pe.utec.fullstack.repository.CartItemJpaEntity;
-import pe.utec.fullstack.repository.CartItemJpaRepository;
-import pe.utec.fullstack.repository.OrderItemJpaRepository;
-import pe.utec.fullstack.repository.OrderJpaEntity;
-import pe.utec.fullstack.repository.OrderJpaRepository;
+import pe.utec.fullstack.repository.EntidadArticuloCarrito;
+import pe.utec.fullstack.repository.RepositorioDatosArticuloCarrito;
+import pe.utec.fullstack.repository.RepositorioDatosArticuloOrden;
+import pe.utec.fullstack.repository.EntidadOrden;
+import pe.utec.fullstack.repository.RepositorioDatosOrden;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
     @Mock
-    private CartItemJpaRepository cartRepository;
+    private RepositorioDatosArticuloCarrito cartRepository;
 
     @Mock
-    private OrderJpaRepository orderRepository;
+    private RepositorioDatosOrden orderRepository;
 
     @Mock
-    private OrderItemJpaRepository orderItemRepository;
+    private RepositorioDatosArticuloOrden orderItemRepository;
 
     @Mock
     private ProductoService productoService;
@@ -53,8 +53,8 @@ class OrderServiceTest {
                 product(11, "Insumo", "5.50"));
         when(cartRepository.findAllByUsuarioIdOrderById(7)).thenReturn(cartItems);
         when(productoService.obtenerActivosPorIds(List.of(10, 11))).thenReturn(products);
-        when(orderRepository.saveAndFlush(any(OrderJpaEntity.class))).thenAnswer(call -> {
-            OrderJpaEntity order = call.getArgument(0);
+        when(orderRepository.saveAndFlush(any(EntidadOrden.class))).thenAnswer(call -> {
+            EntidadOrden order = call.getArgument(0);
             order.setId(88);
             return order;
         });
@@ -81,8 +81,8 @@ class OrderServiceTest {
         verify(cartRepository, never()).deleteAllByUsuarioId(7);
     }
 
-    private CartItemJpaEntity cartItem(int productId, int quantity) {
-        return CartItemJpaEntity.builder()
+    private EntidadArticuloCarrito cartItem(int productId, int quantity) {
+        return EntidadArticuloCarrito.builder()
                 .id(productId)
                 .usuarioId(7)
                 .productoId(productId)

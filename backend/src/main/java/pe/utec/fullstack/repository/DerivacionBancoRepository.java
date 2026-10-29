@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class DerivacionBancoRepository {
 
-    private final DerivacionBancoJpaRepository derivacionBancoJpaRepository;
+    private final RepositorioDatosDerivacionBanco derivacionBancoJpaRepository;
     private final PersistenceMapper mapper;
 
-    public DerivacionBancoRepository(DerivacionBancoJpaRepository derivacionBancoJpaRepository,
+    public DerivacionBancoRepository(RepositorioDatosDerivacionBanco derivacionBancoJpaRepository,
                                               PersistenceMapper mapper) {
         this.derivacionBancoJpaRepository = derivacionBancoJpaRepository;
         this.mapper = mapper;

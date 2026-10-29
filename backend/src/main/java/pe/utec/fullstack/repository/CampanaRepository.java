@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class CampanaRepository {
 
-    private final CampanaJpaRepository campanaJpaRepository;
+    private final RepositorioDatosCampana campanaJpaRepository;
     private final PersistenceMapper mapper;
 
-    public CampanaRepository(CampanaJpaRepository campanaJpaRepository, PersistenceMapper mapper) {
+    public CampanaRepository(RepositorioDatosCampana campanaJpaRepository, PersistenceMapper mapper) {
         this.campanaJpaRepository = campanaJpaRepository;
         this.mapper = mapper;
     }

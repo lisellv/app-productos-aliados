@@ -16,157 +16,157 @@ import pe.utec.fullstack.controller.response.OrderItemResponse;
 import pe.utec.fullstack.controller.response.OrderResponse;
 import pe.utec.fullstack.domain.business.OrderStatus;
 import pe.utec.fullstack.domain.business.Producto;
-import pe.utec.fullstack.repository.CartItemJpaEntity;
-import pe.utec.fullstack.repository.CartItemJpaRepository;
-import pe.utec.fullstack.repository.OrderItemJpaEntity;
-import pe.utec.fullstack.repository.OrderItemJpaRepository;
-import pe.utec.fullstack.repository.OrderJpaEntity;
-import pe.utec.fullstack.repository.OrderJpaRepository;
+import pe.utec.fullstack.repository.EntidadArticuloCarrito;
+import pe.utec.fullstack.repository.RepositorioDatosArticuloCarrito;
+import pe.utec.fullstack.repository.EntidadArticuloOrden;
+import pe.utec.fullstack.repository.RepositorioDatosArticuloOrden;
+import pe.utec.fullstack.repository.EntidadOrden;
+import pe.utec.fullstack.repository.RepositorioDatosOrden;
 
 @Service
 @Transactional
 public class OrderService {
 
-    private final CartItemJpaRepository cartRepository;
-    private final OrderJpaRepository orderRepository;
-    private final OrderItemJpaRepository orderItemRepository;
-    private final ProductoService productoService;
+    private final RepositorioDatosArticuloCarrito repositorioCarrito;
+    private final RepositorioDatosOrden repositorioOrden;
+    private final RepositorioDatosArticuloOrden repositorioArticuloOrden;
+    private final ProductoService servicioProducto;
 
     public OrderService(
-            CartItemJpaRepository cartRepository,
-            OrderJpaRepository orderRepository,
-            OrderItemJpaRepository orderItemRepository,
-            ProductoService productoService) {
-        this.cartRepository = cartRepository;
-        this.orderRepository = orderRepository;
-        this.orderItemRepository = orderItemRepository;
-        this.productoService = productoService;
+            RepositorioDatosArticuloCarrito repositorioCarrito,
+            RepositorioDatosOrden repositorioOrden,
+            RepositorioDatosArticuloOrden repositorioArticuloOrden,
+            ProductoService servicioProducto) {
+        this.repositorioCarrito = repositorioCarrito;
+        this.repositorioOrden = repositorioOrden;
+        this.repositorioArticuloOrden = repositorioArticuloOrden;
+        this.servicioProducto = servicioProducto;
     }
 
-    public OrderResponse createOrder(Integer userId) {
-        List<CartItemJpaEntity> cartItems = cartRepository.findAllByUsuarioIdOrderById(userId);
-        if (cartItems.isEmpty()) {
+    public OrderResponse createOrder(Integer idUsuario) {
+        List<EntidadArticuloCarrito> articulosCarrito = repositorioCarrito.findAllByUsuarioIdOrderById(idUsuario);
+        if (articulosCarrito.isEmpty()) {
             throw new IllegalArgumentException("El carrito está vacío.");
         }
 
-        Map<Integer, Producto> productsById = productoService.obtenerActivosPorIds(
-                cartItems.stream().map(CartItemJpaEntity::getProductoId).distinct().toList())
+        Map<Integer, Producto> productosPorId = servicioProducto.obtenerActivosPorIds(
+                articulosCarrito.stream().map(EntidadArticuloCarrito::getProductoId).distinct().toList())
                 .stream()
                 .collect(Collectors.toMap(Producto::getId, Function.identity()));
-        List<Producto> products = cartItems.stream()
-                .map(item -> {
-                    Producto product = productsById.get(item.getProductoId());
-                    if (product == null) {
+        List<Producto> productos = articulosCarrito.stream()
+                .map(articulo -> {
+                    Producto producto = productosPorId.get(articulo.getProductoId());
+                    if (producto == null) {
                         throw new EntityNotFoundException("Producto del carrito no disponible.");
                     }
-                    return product;
+                    return producto;
                 })
                 .toList();
-        List<String> currencies = products.stream()
-                .map(product -> currency(product.getMoneda()))
+        List<String> monedas = productos.stream()
+                .map(producto -> normalizarMoneda(producto.getMoneda()))
                 .distinct()
                 .toList();
-        if (currencies.size() != 1) {
+        if (monedas.size() != 1) {
             throw new IllegalArgumentException("El carrito debe contener productos de una sola moneda.");
         }
 
         BigDecimal total = BigDecimal.ZERO;
-        for (int index = 0; index < cartItems.size(); index++) {
-            total = total.add(products.get(index).getPrecioLista()
-                    .multiply(BigDecimal.valueOf(cartItems.get(index).getQuantity())));
+        for (int indice = 0; indice < articulosCarrito.size(); indice++) {
+            total = total.add(productos.get(indice).getPrecioLista()
+                    .multiply(BigDecimal.valueOf(articulosCarrito.get(indice).getQuantity())));
         }
 
-        OffsetDateTime now = OffsetDateTime.now();
-        OrderJpaEntity order = orderRepository.saveAndFlush(OrderJpaEntity.builder()
-                .usuarioId(userId)
+        OffsetDateTime fechaActual = OffsetDateTime.now();
+        EntidadOrden orden = repositorioOrden.saveAndFlush(EntidadOrden.builder()
+                .usuarioId(idUsuario)
                 .status(OrderStatus.PENDIENTE.name())
                 .total(total)
-                .currency(currencies.get(0))
-                .creadoAt(now)
-                .actualizadoAt(now)
+                .currency(monedas.get(0))
+                .creadoAt(fechaActual)
+                .actualizadoAt(fechaActual)
                 .build());
 
-        List<OrderItemJpaEntity> orderItems = new ArrayList<>();
-        for (int index = 0; index < cartItems.size(); index++) {
-            CartItemJpaEntity cartItem = cartItems.get(index);
-            Producto product = products.get(index);
-            orderItems.add(OrderItemJpaEntity.builder()
-                    .orderId(order.getId())
-                    .productoId(product.getId())
-                    .productName(product.getNombre())
-                    .quantity(cartItem.getQuantity())
-                    .unitPrice(product.getPrecioLista())
-                    .currency(currency(product.getMoneda()))
+        List<EntidadArticuloOrden> articulosOrden = new ArrayList<>();
+        for (int indice = 0; indice < articulosCarrito.size(); indice++) {
+            EntidadArticuloCarrito articuloCarrito = articulosCarrito.get(indice);
+            Producto producto = productos.get(indice);
+            articulosOrden.add(EntidadArticuloOrden.builder()
+                    .orderId(orden.getId())
+                    .productoId(producto.getId())
+                    .productName(producto.getNombre())
+                    .quantity(articuloCarrito.getQuantity())
+                    .unitPrice(producto.getPrecioLista())
+                    .currency(normalizarMoneda(producto.getMoneda()))
                     .build());
         }
-        orderItemRepository.saveAll(orderItems);
-        cartRepository.deleteAllByUsuarioId(userId);
-        return toResponse(order, orderItems);
+        repositorioArticuloOrden.saveAll(articulosOrden);
+        repositorioCarrito.deleteAllByUsuarioId(idUsuario);
+        return toResponse(orden, articulosOrden);
     }
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> getMyOrders(Integer userId) {
-        return toResponses(orderRepository.findAllByUsuarioIdOrderByCreadoAtDesc(userId));
+    public List<OrderResponse> getMyOrders(Integer idUsuario) {
+        return toResponses(repositorioOrden.findAllByUsuarioIdOrderByCreadoAtDesc(idUsuario));
     }
 
     @Transactional(readOnly = true)
     public List<OrderResponse> getAllOrders() {
-        return toResponses(orderRepository.findAllByOrderByCreadoAtDesc());
+        return toResponses(repositorioOrden.findAllByOrderByCreadoAtDesc());
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse getOrder(Integer orderId) {
-        OrderJpaEntity order = findOrder(orderId);
-        return toResponse(order, orderItemRepository.findAllByOrderIdOrderById(orderId));
+    public OrderResponse getOrder(Integer idOrden) {
+        EntidadOrden orden = findOrder(idOrden);
+        return toResponse(orden, repositorioArticuloOrden.findAllByOrderIdOrderById(idOrden));
     }
 
-    public OrderResponse updateStatus(Integer orderId, OrderStatus status) {
-        OrderJpaEntity order = findOrder(orderId);
-        order.setStatus(status.name());
-        order.setActualizadoAt(OffsetDateTime.now());
-        return toResponse(orderRepository.saveAndFlush(order),
-                orderItemRepository.findAllByOrderIdOrderById(orderId));
+    public OrderResponse updateStatus(Integer idOrden, OrderStatus estado) {
+        EntidadOrden orden = findOrder(idOrden);
+        orden.setStatus(estado.name());
+        orden.setActualizadoAt(OffsetDateTime.now());
+        return toResponse(repositorioOrden.saveAndFlush(orden),
+                repositorioArticuloOrden.findAllByOrderIdOrderById(idOrden));
     }
 
-    private List<OrderResponse> toResponses(List<OrderJpaEntity> orders) {
-        if (orders.isEmpty())
+    private List<OrderResponse> toResponses(List<EntidadOrden> ordenes) {
+        if (ordenes.isEmpty())
             return List.of();
-        List<Integer> orderIds = orders.stream().map(OrderJpaEntity::getId).toList();
-        Map<Integer, List<OrderItemJpaEntity>> itemsByOrder = orderItemRepository
-                .findAllByOrderIdInOrderByOrderId(orderIds).stream()
-                .collect(Collectors.groupingBy(OrderItemJpaEntity::getOrderId));
-        return orders.stream()
-                .map(order -> toResponse(order, itemsByOrder.getOrDefault(order.getId(), List.of())))
+        List<Integer> idsOrden = ordenes.stream().map(EntidadOrden::getId).toList();
+        Map<Integer, List<EntidadArticuloOrden>> articulosPorOrden = repositorioArticuloOrden
+                .findAllByOrderIdInOrderByOrderId(idsOrden).stream()
+                .collect(Collectors.groupingBy(EntidadArticuloOrden::getOrderId));
+        return ordenes.stream()
+                .map(orden -> toResponse(orden, articulosPorOrden.getOrDefault(orden.getId(), List.of())))
                 .toList();
     }
 
-    private OrderResponse toResponse(OrderJpaEntity order, List<OrderItemJpaEntity> items) {
+    private OrderResponse toResponse(EntidadOrden orden, List<EntidadArticuloOrden> articulos) {
         return new OrderResponse(
-                order.getId(),
-                order.getUsuarioId(),
-                OrderStatus.valueOf(order.getStatus()),
-                order.getTotal(),
-                order.getCurrency(),
-                order.getCreadoAt(),
-                items.stream().map(this::toResponse).toList());
+                orden.getId(),
+                orden.getUsuarioId(),
+                OrderStatus.valueOf(orden.getStatus()),
+                orden.getTotal(),
+                orden.getCurrency(),
+                orden.getCreadoAt(),
+                articulos.stream().map(this::toResponse).toList());
     }
 
-    private OrderItemResponse toResponse(OrderItemJpaEntity item) {
+    private OrderItemResponse toResponse(EntidadArticuloOrden articulo) {
         return new OrderItemResponse(
-                item.getId(),
-                item.getProductoId(),
-                item.getProductName(),
-                item.getQuantity(),
-                item.getUnitPrice(),
-                item.getCurrency());
+                articulo.getId(),
+                articulo.getProductoId(),
+                articulo.getProductName(),
+                articulo.getQuantity(),
+                articulo.getUnitPrice(),
+                articulo.getCurrency());
     }
 
-    private OrderJpaEntity findOrder(Integer orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Orden no encontrada: " + orderId));
+    private EntidadOrden findOrder(Integer idOrden) {
+        return repositorioOrden.findById(idOrden)
+                .orElseThrow(() -> new EntityNotFoundException("Orden no encontrada: " + idOrden));
     }
 
-    private String currency(String currency) {
-        return currency == null || currency.isBlank() ? "PEN" : currency;
+    private String normalizarMoneda(String moneda) {
+        return moneda == null || moneda.isBlank() ? "PEN" : moneda;
     }
 }

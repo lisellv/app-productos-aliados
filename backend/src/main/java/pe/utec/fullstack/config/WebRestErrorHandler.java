@@ -16,64 +16,65 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class WebRestErrorHandler {
 
     @ExceptionHandler
-    public ResponseEntity<Exception> handleGenericException(Exception ex) {
+    public ResponseEntity<Exception> handleGenericException(Exception excepcion) {
 
-        ex.printStackTrace();
+        excepcion.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ex);
+                .body(excepcion);
     }
 
-        @ExceptionHandler(AuthenticationException.class)
-        public ResponseEntity<ExceptionResponse> handleAuthenticationException(AuthenticationException ex) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                .body(ExceptionResponse.builder()
-                                                .code("AUTH_01")
-                                                .message("Credenciales inválidas")
-                                                .validations(new ArrayList<>())
-                                                .build());
-        }
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ExceptionResponse> handleAuthenticationException(AuthenticationException excepcion) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ExceptionResponse.builder()
+                        .code("AUTH_01")
+                        .message("Credenciales inválidas")
+                        .validations(new ArrayList<>())
+                        .build());
+    }
 
     @ExceptionHandler
-    public ResponseEntity<ExceptionResponse> handleEntityNotFound(jakarta.persistence.EntityNotFoundException ex) {
+    public ResponseEntity<ExceptionResponse> handleEntityNotFound(
+            jakarta.persistence.EntityNotFoundException excepcion) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ExceptionResponse.builder()
                         .code("GEN_ALL_02")
-                        .message(ex.getMessage())
+                        .message(excepcion.getMessage())
                         .validations(new ArrayList<>())
                         .build());
     }
 
     @ExceptionHandler
-    public ResponseEntity<ExceptionResponse> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ExceptionResponse> handleIllegalArgument(IllegalArgumentException excepcion) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ExceptionResponse.builder()
                         .code("GEN_ALL_03")
-                        .message(ex.getMessage())
+                        .message(excepcion.getMessage())
                         .validations(new ArrayList<>())
                         .build());
     }
 
-
     @ExceptionHandler
-    public ResponseEntity<ExceptionResponse> handleFormError(MethodArgumentNotValidException methodArgumentNotValidException) {
-        List<ValidationResponse> errors = new ArrayList<>();
-        for (FieldError error : methodArgumentNotValidException.getBindingResult().getFieldErrors()) {
-            errors.add(ValidationResponse.builder()
-                    .field(error.getField())
-                    .message(error.getDefaultMessage())
+    public ResponseEntity<ExceptionResponse> handleFormError(
+            MethodArgumentNotValidException excepcionValidacion) {
+        List<ValidationResponse> errores = new ArrayList<>();
+        for (FieldError errorCampo : excepcionValidacion.getBindingResult().getFieldErrors()) {
+            errores.add(ValidationResponse.builder()
+                    .field(errorCampo.getField())
+                    .message(errorCampo.getDefaultMessage())
                     .build());
         }
-        for (ObjectError error : methodArgumentNotValidException.getBindingResult().getGlobalErrors()) {
-            errors.add(ValidationResponse.builder()
-                    .field(error.getObjectName())
-                    .message(error.getDefaultMessage())
+        for (ObjectError errorGeneral : excepcionValidacion.getBindingResult().getGlobalErrors()) {
+            errores.add(ValidationResponse.builder()
+                    .field(errorGeneral.getObjectName())
+                    .message(errorGeneral.getDefaultMessage())
                     .build());
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ExceptionResponse.builder()
                         .code("GEN_ALL_01")
                         .message("Your request has some validation errors")
-                        .validations(errors)
+                        .validations(errores)
                         .build());
     }
 }

@@ -25,36 +25,38 @@ import pe.utec.fullstack.domain.CartService;
 @RequestMapping("/api/cart")
 public class CartController {
 
-    private final CartService cartService;
+    private final CartService servicioCarrito;
 
-    public CartController(CartService cartService) {
-        this.cartService = cartService;
+    public CartController(CartService servicioCarrito) {
+        this.servicioCarrito = servicioCarrito;
     }
 
     @GetMapping
-    public List<CartItemResponse> getCart(@AuthenticationPrincipal UserInfoDetails user) {
-        return cartService.getCart(user.getId());
+    public List<CartItemResponse> getCart(@AuthenticationPrincipal UserInfoDetails usuarioAutenticado) {
+        return servicioCarrito.getCart(usuarioAutenticado.getId());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CartItemResponse addItem(
-            @AuthenticationPrincipal UserInfoDetails user,
-            @Valid @RequestBody AddCartItemRequest request) {
-        return cartService.addItem(user.getId(), request);
+            @AuthenticationPrincipal UserInfoDetails usuarioAutenticado,
+            @Valid @RequestBody AddCartItemRequest solicitud) {
+        return servicioCarrito.addItem(usuarioAutenticado.getId(), solicitud);
     }
 
     @PutMapping("/{itemId}")
     public CartItemResponse updateQuantity(
-            @AuthenticationPrincipal UserInfoDetails user,
-            @PathVariable Integer itemId,
-            @Valid @RequestBody UpdateCartItemRequest request) {
-        return cartService.updateQuantity(user.getId(), itemId, request.quantity());
+            @AuthenticationPrincipal UserInfoDetails usuarioAutenticado,
+            @PathVariable("itemId") Integer idArticulo,
+            @Valid @RequestBody UpdateCartItemRequest solicitud) {
+        return servicioCarrito.updateQuantity(usuarioAutenticado.getId(), idArticulo, solicitud.quantity());
     }
 
     @DeleteMapping("/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeItem(@AuthenticationPrincipal UserInfoDetails user, @PathVariable Integer itemId) {
-        cartService.removeItem(user.getId(), itemId);
+    public void removeItem(
+            @AuthenticationPrincipal UserInfoDetails usuarioAutenticado,
+            @PathVariable("itemId") Integer idArticulo) {
+        servicioCarrito.removeItem(usuarioAutenticado.getId(), idArticulo);
     }
 }

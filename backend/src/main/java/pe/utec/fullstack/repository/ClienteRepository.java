@@ -11,10 +11,10 @@ import pe.utec.fullstack.domain.business.TipoDocumento;
 @Repository
 public class ClienteRepository {
 
-    private final ClienteJpaRepository clienteJpaRepository;
+    private final RepositorioDatosCliente clienteJpaRepository;
     private final PersistenceMapper mapper;
 
-    public ClienteRepository(ClienteJpaRepository clienteJpaRepository, PersistenceMapper mapper) {
+    public ClienteRepository(RepositorioDatosCliente clienteJpaRepository, PersistenceMapper mapper) {
         this.clienteJpaRepository = clienteJpaRepository;
         this.mapper = mapper;
     }

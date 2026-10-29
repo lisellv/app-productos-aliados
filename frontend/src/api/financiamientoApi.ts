@@ -1,0 +1,39 @@
+import type {
+  ClientRecord,
+  ClientRegistrationRequest,
+  CreateFinancingRequest,
+  FinancingOption,
+  FinancingRequest,
+} from "../types/financiamiento";
+import { solicitarApi } from "./clienteHttp";
+import { unwrapList, type ListResponse } from "./respuestaLista";
+
+export const apiFinanciamiento = {
+  async getOptions() {
+    return unwrapList(
+      await solicitarApi<ListResponse<FinancingOption>>(
+        "/api/productos-financiamiento",
+        { omitirAutenticacion: true },
+      ),
+    );
+  },
+  registerClient(datosCliente: ClientRegistrationRequest) {
+    return solicitarApi<{ clienteId: number }>("/api/clientes/registro", {
+      method: "POST",
+      omitirAutenticacion: true,
+      cuerpo: JSON.stringify(datosCliente),
+    });
+  },
+  createRequest(datosSolicitud: CreateFinancingRequest) {
+    return solicitarApi<FinancingRequest>("/api/solicitudes-financiamiento", {
+      method: "POST",
+      cuerpo: JSON.stringify(datosSolicitud),
+    });
+  },
+  getRequests() {
+    return solicitarApi<FinancingRequest[]>("/api/solicitudes-financiamiento");
+  },
+  getClients() {
+    return solicitarApi<ClientRecord[]>("/api/clientes");
+  },
+};

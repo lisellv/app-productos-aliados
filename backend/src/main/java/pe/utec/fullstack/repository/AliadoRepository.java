@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public class AliadoRepository {
 
-    private final AliadoJpaRepository aliadoJpaRepository;
+    private final RepositorioDatosAliado aliadoJpaRepository;
     private final PersistenceMapper mapper;
 
-    public AliadoRepository(AliadoJpaRepository aliadoJpaRepository, PersistenceMapper mapper) {
+    public AliadoRepository(RepositorioDatosAliado aliadoJpaRepository, PersistenceMapper mapper) {
         this.aliadoJpaRepository = aliadoJpaRepository;
         this.mapper = mapper;
     }
