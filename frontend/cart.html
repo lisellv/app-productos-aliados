@@ -4,30 +4,9 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Financia Minegocio.PE | Ver productos a financiar</title>
-	<link rel="stylesheet" href="css/styles.css">
-	<script src="scripts/header.js" defer></script>
-	<script src="scripts/footer.js" defer></script>
 </head>
 <body>
-	<div class="page">
-		<div id="header"></div>
-
-		<main class="shopping-wrap">
-			<h1 class="cart-title">Ver productos a financiar</h1>
-
-			<div class="cart-panel">
-				<div class="cart-items" id="cartItems" aria-live="polite">
-					<p class="cart-empty">Aún no agregaste productos.</p>
-				</div>
-				<div class="total-row">
-					<span>Total</span>
-					<span id="cartTotal">S/ 0.00</span>
-				</div>
-				<a href="registro-solicitud.html" class="confirm-btn is-disabled" id="confirmOrder" aria-disabled="true">Registrar solicitud</a>
-			</div>
-		</main>
-		<div id="footer"></div>
-	</div>
-	<script src="scripts/cart.js" defer></script>
+	<div id="root"></div>
+	<script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

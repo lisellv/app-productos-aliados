@@ -17,6 +17,7 @@ public class ProductoService {
     public ProductoService(ProductoRepository productoRepository) {
         this.productoRepository = productoRepository;
     }
+
     public Producto crear(Producto producto) {
         if (producto.getMoneda() == null) {
             producto.setMoneda("PEN");
@@ -27,13 +28,20 @@ public class ProductoService {
         producto.setActualizadoAt(OffsetDateTime.now());
         return this.productoRepository.guardar(producto);
     }
+
     public Producto obtenerPorId(Integer id) {
         return this.productoRepository.buscarPorId(id)
                 .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado: " + id));
     }
+
     public List<Producto> listar() {
         return this.productoRepository.listarActivos();
     }
+
+    public List<Producto> obtenerActivosPorIds(List<Integer> ids) {
+        return this.productoRepository.buscarActivosPorIds(ids);
+    }
+
     public Producto actualizar(Integer id, Producto producto) {
         Producto existente = this.obtenerPorId(id);
         existente.setCategoriaId(producto.getCategoriaId());
@@ -48,6 +56,7 @@ public class ProductoService {
         existente.setActualizadoAt(OffsetDateTime.now());
         return this.productoRepository.guardar(existente);
     }
+
     public void eliminar(Integer id) {
         Producto existente = this.obtenerPorId(id);
         existente.setAlta((short) 0);

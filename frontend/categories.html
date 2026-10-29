@@ -1,39 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Financia Minegocio.PE | Productos</title>
-  <link rel="stylesheet" href="css/styles.css">
-  <script src="scripts/header.js" defer></script>
-  <script src="scripts/config.js" defer></script>
-  <script src="scripts/api.js" defer></script>
-  <script src="scripts/cart.js" defer></script>
-  <script src="scripts/categories.js" defer></script>
-  <script src="scripts/footer.js" defer></script>
-</head>
-<body>
-  <div id="header"></div>
-  <div class="catalog">
-    <aside class="filtros">
-      <label for="categoryFilter">Filtrar por categoría:</label>
-      <select id="categoryFilter">
-        <option value="all">Todas las categorías</option>
-      </select>
-      <label>Filtrar por precio:</label>
-      <div class="fila-precios">
-        <input id="minPrice" type="number" placeholder="Mín">
-        <span>-</span>
-        <input id="maxPrice" type="number" placeholder="Máx">
-      </div>
-
-      <button id="botonFiltro" type="button">Filtrar productos</button>
-    </aside>
-
-    <section class="productos">
-      <p role="status">Cargando productos...</p>
-    </section>
-  </div>
-  <div id="footer"></div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Financia Minegocio.PE | Productos</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

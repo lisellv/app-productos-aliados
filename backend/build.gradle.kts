@@ -46,8 +46,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
 
-	runtimeOnly("org.postgresql:postgresql")
-
 	compileOnly("org.mapstruct:mapstruct:${mapstructVersion}")
 	compileOnly("org.projectlombok:lombok:${lombokVersion}")
 	annotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")

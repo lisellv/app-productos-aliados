@@ -50,8 +50,8 @@
                 "exec": [
                   "pm.collectionVariables.unset('token');",
                   "if (pm.response.code !== 200) { throw new Error('Login falló: revisa las credenciales'); }",
-                  "let token = pm.response.text().trim();",
-                  "if (token.startsWith('\\\"') && token.endsWith('\\\"')) { token = JSON.parse(token).trim(); }",
+                  "let token;",
+                  "try { const body = pm.response.json(); token = typeof body === 'string' ? body : body.token; } catch { token = pm.response.text().trim(); }",
                   "const segments = token.split('.');",
                   "if (segments.length !== 3 || segments.some(segment => !segment)) { throw new Error('La respuesta de login no contiene un JWT válido'); }",
                   "pm.collectionVariables.set('token', token);"

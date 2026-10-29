@@ -9,4 +9,6 @@ import java.util.List;
 public interface ProductoJpaRepository extends JpaRepository<ProductoJpaEntity, Integer> {
 
     List<ProductoJpaEntity> findByAlta(Short alta);
+
+    List<ProductoJpaEntity> findAllByIdInAndAltaAndEstado(List<Integer> ids, Short alta, String estado);
 }

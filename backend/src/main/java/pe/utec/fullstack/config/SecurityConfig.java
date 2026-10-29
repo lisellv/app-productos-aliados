@@ -24,73 +24,92 @@ import pe.utec.fullstack.controller.auth.UsuarioDetailsService;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthFilter jwtAuthFilter;
+        @Autowired
+        private JwtAuthFilter jwtAuthFilter;
 
-    @Autowired
-    private PasswordEncoder encoder;
+        @Autowired
+        private PasswordEncoder encoder;
 
-    @Autowired
-    private UsuarioDetailsService userDetailsService;
+        @Autowired
+        private UsuarioDetailsService userDetailsService;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/actuator/health/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/productos", "/api/productos/**",
-                                "/api/categorias", "/api/categorias/**")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/productos-financiamiento/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/clientes/registro").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/solicitudes-financiamiento").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/solicitudes-financiamiento").authenticated()
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/api/auth/**").permitAll()
+                                                .requestMatchers("/actuator/health/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/productos", "/api/productos/**",
+                                                                "/api/categorias", "/api/categorias/**",
+                                                                "/api/categories", "/api/categories/**")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/productos-financiamiento/**")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/api/clientes/registro").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/api/solicitudes-financiamiento")
+                                                .permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/solicitudes-financiamiento")
+                                                .authenticated()
+                                                .requestMatchers("/api/cart", "/api/cart/**")
+                                                .hasAnyAuthority("ROLE_USER", "ROLE_USUARIO")
+                                                .requestMatchers(HttpMethod.GET, "/api/orders/my")
+                                                .hasAnyAuthority("ROLE_USER", "ROLE_USUARIO")
+                                                .requestMatchers(HttpMethod.POST, "/api/orders")
+                                                .hasAnyAuthority("ROLE_USER", "ROLE_USUARIO")
+                                                .requestMatchers("/api/orders", "/api/orders/**")
+                                                .hasAuthority("ROLE_ADMIN")
 
-                        .requestMatchers(
-                                "/swagger", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/v3/api-docs.yaml")
-                        .permitAll()
-                        .requestMatchers(
-                                "/api/roles/**", "/api/usuarios/**", "/api/aliados/**", "/api/clientes/**",
-                                "/api/categorias/**", "/api/productos/**", "/api/tipos-financiamiento/**",
-                                "/api/productos-financiamiento/**", "/api/campanas/**",
-                                "/api/solicitudes-financiamiento/**",
-                                "/api/campana-producto/**", "/api/reglas-precalificacion/**", "/api/lista-interes/**",
-                                "/api/historial-solicitud/**", "/api/derivacion-banco/**")
-                        .hasAuthority("ROLE_ADMIN")
-                        /*
-                         * .requestMatchers("/persons/**").hasAuthority("ROLE_PERSONS")
-                         * .requestMatchers("/me/**").hasAuthority("ROLE_ADMIN")
-                         */
-                        .anyRequest().denyAll())
-                .authenticationProvider(authenticationProvider())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                                                .requestMatchers(
+                                                                "/swagger", "/swagger-ui.html", "/swagger-ui/**",
+                                                                "/v3/api-docs/**",
+                                                                "/v3/api-docs.yaml")
+                                                .permitAll()
+                                                .requestMatchers(
+                                                                "/api/roles/**", "/api/usuarios/**", "/api/aliados/**",
+                                                                "/api/clientes/**",
+                                                                "/api/categorias/**", "/api/productos/**",
+                                                                "/api/tipos-financiamiento/**",
+                                                                "/api/productos-financiamiento/**", "/api/campanas/**",
+                                                                "/api/solicitudes-financiamiento/**",
+                                                                "/api/campana-producto/**",
+                                                                "/api/reglas-precalificacion/**",
+                                                                "/api/lista-interes/**",
+                                                                "/api/historial-solicitud/**",
+                                                                "/api/derivacion-banco/**",
+                                                                "/api/categories/**", "/api/users", "/api/users/**")
+                                                .hasAuthority("ROLE_ADMIN")
+                                                /*
+                                                 * .requestMatchers("/persons/**").hasAuthority("ROLE_PERSONS")
+                                                 * .requestMatchers("/me/**").hasAuthority("ROLE_ADMIN")
+                                                 */
+                                                .anyRequest().denyAll())
+                                .authenticationProvider(authenticationProvider())
+                                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:[*]", "http://127.0.0.1:[*]"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(false);
-        configuration.setMaxAge(3600L);
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
+                configuration.setAllowedOriginPatterns(List.of("http://localhost:[*]", "http://127.0.0.1:[*]"));
+                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                configuration.setAllowedHeaders(List.of("*"));
+                configuration.setAllowCredentials(false);
+                configuration.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
-        return source;
-    }
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/api/**", configuration);
+                return source;
+        }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(encoder);
-        return provider;
-    }
+        @Bean
+        public AuthenticationProvider authenticationProvider() {
+                DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+                provider.setPasswordEncoder(encoder);
+                return provider;
+        }
 }

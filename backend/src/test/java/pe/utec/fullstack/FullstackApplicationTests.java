@@ -1,9 +1,11 @@
 package pe.utec.fullstack;
 
+import java.time.OffsetDateTime;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -12,12 +14,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
 import pe.utec.fullstack.repository.RolJpaEntity;
 import pe.utec.fullstack.repository.RolJpaRepository;
 import pe.utec.fullstack.repository.UsuarioJpaEntity;
 import pe.utec.fullstack.repository.UsuarioJpaRepository;
-
-import java.time.OffsetDateTime;
 
 @Testcontainers
 @SpringBootTest
@@ -52,11 +53,12 @@ class FullstackApplicationTests {
 	@Test
 	void loginRejectsInvalidCredentialsWithUnauthorized() throws Exception {
 		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-					.post("/api/auth/login")
-					.contentType(MediaType.APPLICATION_JSON)
-					.content("{\"userName\":\"missing-user\",\"password\":\"wrong-password\"}"))
+				.post("/api/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"userName\":\"missing-user\",\"password\":\"wrong-password\"}"))
 				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isUnauthorized())
-				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.code").value("AUTH_01"));
+				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.code")
+						.value("AUTH_01"));
 	}
 
 	@Test
@@ -78,15 +80,18 @@ class FullstackApplicationTests {
 				.build());
 
 		var token = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-					.post("/api/auth/login")
-					.contentType(MediaType.APPLICATION_JSON)
-					.content("{\"userName\":\"login-test@example.invalid\",\"password\":\"test-password\"}"))
+				.post("/api/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"email\":\"login-test@example.invalid\",\"password\":\"test-password\"}"))
 				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+				.andExpect(
+						org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.token").exists())
 				.andReturn()
 				.getResponse()
 				.getContentAsString();
 
-		org.junit.jupiter.api.Assertions.assertEquals(3, token.split("\\.").length);
+		var jwt = new com.fasterxml.jackson.databind.ObjectMapper().readTree(token).get("token").asText();
+		org.junit.jupiter.api.Assertions.assertEquals(3, jwt.split("\\.").length);
 	}
 
 }

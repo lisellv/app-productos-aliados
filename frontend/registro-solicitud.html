@@ -4,70 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financia Minegocio.PE | Registrar solicitud</title>
-  <link rel="stylesheet" href="css/styles.css">
-  <script src="scripts/header.js" defer></script>
-  <script src="scripts/config.js" defer></script>
-  <script src="scripts/api.js" defer></script>
-  <script src="scripts/registro-solicitud.js" defer></script>
-  <script src="scripts/footer.js" defer></script>
 </head>
 <body>
-  <div id="header"></div>
-  <main class="request-registration">
-    <header class="registration-heading">
-      <h1>Registrar solicitud de financiamiento</h1>
-      <p>Completa los datos del cliente y las condiciones para cada producto.</p>
-    </header>
-    <form id="requestForm" class="registration-form">
-      <fieldset>
-        <legend>Datos del cliente</legend>
-        <div class="registration-fields">
-          <label>Tipo de persona
-            <select name="tipoPersona" id="requestPersonType" required>
-              <option value="NATURAL">Persona natural</option>
-              <option value="JURIDICA">Persona jurídica</option>
-            </select>
-          </label>
-          <label>Tipo de documento
-            <select name="tipoDocumento" id="requestDocumentType" required></select>
-          </label>
-          <label>Número de documento
-            <input name="numeroDocumento" id="requestDocumentNumber" type="text" maxlength="11" required>
-          </label>
-          <label data-request-natural>Nombres
-            <input name="nombres" type="text" maxlength="100" required>
-          </label>
-          <label data-request-natural>Apellidos
-            <input name="apellidos" type="text" maxlength="100" required>
-          </label>
-          <label data-request-legal>Razón social
-            <input name="razonSocial" type="text" maxlength="150">
-          </label>
-          <label>Correo electrónico
-            <input name="correo" type="email" maxlength="254">
-          </label>
-          <label>Teléfono
-            <input name="telefono" type="tel" maxlength="20">
-          </label>
-        </div>
-      </fieldset>
-      <section class="application-products-section" aria-labelledby="applicationProductsTitle">
-        <h2 id="applicationProductsTitle">Productos y condiciones</h2>
-        <div id="applicationProducts" class="application-products">
-          <p role="status">Cargando productos y modalidades...</p>
-        </div>
-      </section>
-      <label class="request-consent">
-        <input type="checkbox" name="consentimiento" required>
-        Autorizo el tratamiento de mis datos personales y su uso para gestionar esta solicitud.
-      </label>
-      <p class="registration-message" id="registrationMessage" role="status"></p>
-      <div class="registration-actions">
-        <a class="admin-form-cancel" href="cart.html">Volver al carrito</a>
-        <button class="confirm-btn" id="submitRequest" type="submit" disabled>Enviar solicitud</button>
-      </div>
-    </form>
-  </main>
-  <div id="footer"></div>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
