@@ -32,6 +32,9 @@ public class EntidadCliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "usuario_id")
+    private Integer usuarioId;
+
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_persona", nullable = false, columnDefinition = "tipo_persona")

@@ -108,7 +108,7 @@ const entidades: DefinicionEntidad[] = [
         type: "select",
         options: [
           ["VEHICULAR", "VEHICULAR"],
-          ["CAPITAL_TRABAJO", "CAPITAL_TRABAJO"],
+          ["CAPITAL_TRABAJO", "Crédito bancario"],
         ],
         required: true,
       },
@@ -347,6 +347,15 @@ const textoDeValor = (valorEntrada: unknown) =>
 const valorOpcional = (valorEntrada: unknown) =>
   textoDeValor(valorEntrada).trim() || null;
 
+function rolRequiereAliado(rolId: unknown, roles: DatosRegistro[]): boolean {
+  const rol = roles.find((registro) => String(registro.id) === String(rolId));
+  return (
+    String(rol?.nombreRol || "")
+      .trim()
+      .toLocaleLowerCase("es") === "aliado"
+  );
+}
+
 function valoresIniciales(
   entidad: DefinicionEntidad,
   registro?: DatosRegistro,
@@ -377,6 +386,7 @@ function construirCarga(
   clave: ClaveEntidad,
   valoresFormulario: Record<string, string>,
   esEdicion: boolean,
+  roles: DatosRegistro[],
 ): DatosRegistro {
   const leerCampo = (name: string) => valoresFormulario[name]?.trim() || "";
   const descripcion = valorOpcional(valoresFormulario.descripcion);
@@ -385,7 +395,10 @@ function construirCarga(
       return {
         correoElectronico: leerCampo("correo"),
         rolId: Number(leerCampo("rolId")),
-        aliadoId: leerCampo("aliadoId") ? Number(leerCampo("aliadoId")) : null,
+        aliadoId:
+          rolRequiereAliado(leerCampo("rolId"), roles) && leerCampo("aliadoId")
+            ? Number(leerCampo("aliadoId"))
+            : null,
         ...(leerCampo("password") ? { password: leerCampo("password") } : {}),
         ...(esEdicion ? { activo: leerCampo("estado") === "true" } : {}),
       };
@@ -640,7 +653,12 @@ export function MaintenancePage() {
       await solicitarApi(rutaApi, {
         method: idEnEdicion ? "PUT" : "POST",
         cuerpo: JSON.stringify(
-          construirCarga(claveActiva, valoresFormulario, Boolean(idEnEdicion)),
+          construirCarga(
+            claveActiva,
+            valoresFormulario,
+            Boolean(idEnEdicion),
+            datos.roles,
+          ),
         ),
       });
       setFormularioAbierto(false);
@@ -722,6 +740,11 @@ export function MaintenancePage() {
                 .filter(
                   (campo) =>
                     !(
+                      claveActiva === "usuarios" &&
+                      campo.name === "aliadoId" &&
+                      !rolRequiereAliado(valoresFormulario.rolId, datos.roles)
+                    ) &&
+                    !(
                       idEnEdicion &&
                       [
                         "codigo",
@@ -734,8 +757,13 @@ export function MaintenancePage() {
                 )
                 .map((campo) => {
                   const esContrasena = campo.name === "password";
+                  const esAliadoRequerido =
+                    claveActiva === "usuarios" &&
+                    campo.name === "aliadoId" &&
+                    rolRequiereAliado(valoresFormulario.rolId, datos.roles);
                   const esObligatorio = Boolean(
-                    campo.required && (!esContrasena || !idEnEdicion),
+                    (campo.required || esAliadoRequerido) &&
+                    (!esContrasena || !idEnEdicion),
                   );
                   return (
                     <label key={campo.name}>
@@ -744,12 +772,18 @@ export function MaintenancePage() {
                         <select
                           required={esObligatorio}
                           value={valoresFormulario[campo.name] || ""}
-                          onChange={(evento) =>
+                          onChange={(evento) => {
+                            const valorSeleccionado = evento.target.value;
                             setValoresFormulario((valoresActuales) => ({
                               ...valoresActuales,
-                              [campo.name]: evento.target.value,
-                            }))
-                          }
+                              [campo.name]: valorSeleccionado,
+                              ...(claveActiva === "usuarios" &&
+                              campo.name === "rolId" &&
+                              !rolRequiereAliado(valorSeleccionado, datos.roles)
+                                ? { aliadoId: "" }
+                                : {}),
+                            }));
+                          }}
                         >
                           <option value="">Selecciona una opción</option>
                           {(
@@ -778,6 +812,10 @@ export function MaintenancePage() {
                         <input
                           type={campo.type || "text"}
                           min={campo.type === "number" ? 0 : undefined}
+                          minLength={campo.name === "password" ? 8 : undefined}
+                          maxLength={
+                            campo.name === "password" ? 100 : undefined
+                          }
                           required={esObligatorio}
                           value={valoresFormulario[campo.name] || ""}
                           onChange={(evento) =>
@@ -787,6 +825,11 @@ export function MaintenancePage() {
                             }))
                           }
                         />
+                      )}
+                      {campo.name === "password" && !idEnEdicion && (
+                        <small>
+                          La contraseña debe tener entre 8 y 100 caracteres.
+                        </small>
                       )}
                     </label>
                   );

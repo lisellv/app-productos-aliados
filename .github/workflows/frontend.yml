@@ -1,5 +1,5 @@
-# Construye la imagen del frontend y la publica en ghcr.io
-name: Frontend
+# Valida el frontend, construye su imagen y la publica en ghcr.io
+name: Frontend - validación y publicación
 
 on:
   push:
@@ -14,17 +14,33 @@ jobs:
       contents: read
       packages: write # permiso para publicar en ghcr.io
     steps:
-      - name: Descargar el código
+      - name: Obtener el código
         uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: frontend
+        run: npm ci
+
+      - name: Validar y compilar el frontend
+        working-directory: frontend
+        run: npm run build
+
       - name: Iniciar sesión en ghcr.io
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Nombre de la imagen (en minúsculas)
+      - name: Definir el nombre de la imagen
         run: echo "IMAGEN=ghcr.io/${GITHUB_REPOSITORY,,}-frontend" >> "$GITHUB_ENV"
-      - name: Construir y publicar la imagen
+      - name: Construir y publicar la imagen del frontend
         uses: docker/build-push-action@v6
         with:
           context: ./frontend

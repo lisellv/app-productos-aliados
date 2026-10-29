@@ -27,9 +27,13 @@ export interface FinancingRequest {
 export interface ClientRecord {
   id: number | string;
   tipoPersona: string;
+  tipoDocumento?: string;
+  numeroDocumento?: string;
   nombres?: string;
   apellidos?: string;
   razonSocial?: string;
+  correo?: string;
+  telefono?: string;
 }
 
 export interface ClientRegistrationRequest {

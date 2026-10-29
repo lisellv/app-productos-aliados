@@ -38,7 +38,9 @@ export async function solicitarApi<T>(
     return respuesta.data;
   } catch (errorCapturado) {
     if (axios.isAxiosError(errorCapturado)) {
-      if (!errorCapturado.response) throw new TypeError("Failed to fetch");
+      if (!errorCapturado.response) {
+        throw new TypeError("No se pudo conectar con el servidor.");
+      }
 
       const cuerpoRespuesta = errorCapturado.response.data;
       if (typeof cuerpoRespuesta === "string" && cuerpoRespuesta) {

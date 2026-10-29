@@ -209,7 +209,7 @@ VALUES (
             SELECT id
             FROM categoria
             WHERE
-                nombre = 'Equipamiento'
+                nombre = 'Equipamiento industrial'
         ),
         'Equipo de refrigeracion industrial',
         'Equipamiento para negocio',
@@ -230,7 +230,7 @@ VALUES (
             SELECT id
             FROM categoria
             WHERE
-                nombre = 'Capital de trabajo'
+                nombre = 'Equipamiento industrial'
         ),
         'Paquete de insumos comerciales',
         'Insumos para continuidad operativa',

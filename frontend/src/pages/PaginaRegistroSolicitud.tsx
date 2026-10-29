@@ -1,9 +1,13 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { apiFinanciamiento } from "../api/financiamientoApi";
 import { useCart } from "../context/ContextoCarrito";
-import type { CartItem, FinancingOption } from "../types/modelos";
-import { formatearMoneda, leerCarrito } from "../utils/carrito";
+import type { ClientRecord, FinancingOption } from "../types/modelos";
+import {
+  calcularTotalSolicitado,
+  formatearMoneda,
+  leerCarrito,
+} from "../utils/carrito";
 
 interface CondicionesSolicitud {
   idFinanciamiento: number;
@@ -11,19 +15,93 @@ interface CondicionesSolicitud {
   plazo: string;
 }
 
+interface CreditoSeleccionado {
+  nombre: string;
+  entidad: string;
+  monto: number;
+  moneda: string;
+  tipoTasa: string;
+  tasaAnual: number;
+  plazoMinimoMeses: number;
+  plazoMaximoMeses: number;
+}
+
+interface EstadoNavegacionSolicitud {
+  creditoSeleccionado?: CreditoSeleccionado | null;
+}
+
 export function RegistrationPage() {
   const navegar = useNavigate();
+  const ubicacion = useLocation();
+  const creditoSeleccionado = (
+    ubicacion.state as EstadoNavegacionSolicitud | null
+  )?.creditoSeleccionado;
   const { quitarArticulo } = useCart();
   const [carrito] = useState(leerCarrito);
+  const subtotalPorMoneda = carrito.reduce<Record<string, number>>(
+    (totales, articulo) => {
+      const moneda = articulo.currency || "PEN";
+      totales[moneda] =
+        (totales[moneda] || 0) +
+        articulo.price * Math.max(1, articulo.quantity);
+      return totales;
+    },
+    {},
+  );
+  const subtotalProductos = Object.values(subtotalPorMoneda).reduce(
+    (subtotal, importe) => subtotal + importe,
+    0,
+  );
+  const subtotalFormateado =
+    Object.entries(subtotalPorMoneda)
+      .map(([moneda, importe]) => formatearMoneda(importe, moneda))
+      .join(" · ") || formatearMoneda(0);
+  const montoCredito = creditoSeleccionado?.monto || 0;
+  const totalSolicitado = calcularTotalSolicitado(
+    subtotalProductos,
+    montoCredito,
+  );
+  const monedaSolicitud =
+    creditoSeleccionado?.moneda || carrito[0]?.currency || "PEN";
   const [opcionesFinanciamiento, setOpcionesFinanciamiento] = useState<
     FinancingOption[]
   >([]);
+  const [perfilCliente, setPerfilCliente] = useState<ClientRecord | null>(null);
+  const [cargandoPerfil, setCargandoPerfil] = useState(true);
+  const [errorPerfil, setErrorPerfil] = useState("");
   const [condicionesPorProducto, setCondicionesPorProducto] = useState<
     Record<string, CondicionesSolicitud>
   >({});
   const [tipoPersona, setTipoPersona] = useState("NATURAL");
-  const [mensaje, setMensaje] = useState("Cargando productos y modalidades...");
+  const [mensaje, setMensaje] = useState("Preparando productos...");
   const [enviando, setEnviando] = useState(false);
+
+  useEffect(() => {
+    let solicitudVigente = true;
+    apiFinanciamiento
+      .obtenerMiPerfil()
+      .then((perfil) => {
+        if (!solicitudVigente) return;
+        setPerfilCliente(perfil);
+        if (perfil) setTipoPersona(perfil.tipoPersona);
+      })
+      .catch((errorCapturado: unknown) => {
+        if (solicitudVigente) {
+          setErrorPerfil(
+            errorCapturado instanceof Error
+              ? errorCapturado.message
+              : "No se pudieron consultar tus datos guardados.",
+          );
+        }
+      })
+      .finally(() => {
+        if (solicitudVigente) setCargandoPerfil(false);
+      });
+
+    return () => {
+      solicitudVigente = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (carrito.length === 0) {
@@ -71,25 +149,6 @@ export function RegistrationPage() {
         );
       });
   }, [carrito]);
-
-  function cambiarCondiciones(articulo: CartItem, idFinanciamiento: number) {
-    const modalidad = opcionesFinanciamiento.find(
-      (opcion) => opcion.id === idFinanciamiento,
-    );
-    if (!modalidad) return;
-    const montoEstimado = articulo.price * Math.max(1, articulo.quantity);
-    setCondicionesPorProducto((anteriores) => ({
-      ...anteriores,
-      [String(articulo.id)]: {
-        idFinanciamiento,
-        monto: Math.min(
-          Number(modalidad.montoMaximo),
-          Math.max(Number(modalidad.montoMinimo), montoEstimado),
-        ).toFixed(2),
-        plazo: String(modalidad.plazoMinimoMeses),
-      },
-    }));
-  }
 
   async function enviarSolicitud(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -145,29 +204,36 @@ export function RegistrationPage() {
       resultadoPrecalificacion?: string;
     }> = [];
     try {
-      const esPersonaNatural = tipoPersona === "NATURAL";
-      const cliente = await apiFinanciamiento.registerClient({
-        tipoPersona,
-        tipoDocumento: String(datosFormulario.get("tipoDocumento") || ""),
-        numeroDocumento: String(
-          datosFormulario.get("numeroDocumento") || "",
-        ).trim(),
-        nombres: esPersonaNatural
-          ? String(datosFormulario.get("nombres") || "").trim()
-          : null,
-        apellidos: esPersonaNatural
-          ? String(datosFormulario.get("apellidos") || "").trim()
-          : null,
-        razonSocial: esPersonaNatural
-          ? null
-          : String(datosFormulario.get("razonSocial") || "").trim(),
-        correo: String(datosFormulario.get("correo") || "").trim() || null,
-        telefono: String(datosFormulario.get("telefono") || "").trim() || null,
-      });
+      let clienteId: number;
+      if (perfilCliente) {
+        clienteId = Number(perfilCliente.id);
+      } else {
+        const esPersonaNatural = tipoPersona === "NATURAL";
+        const cliente = await apiFinanciamiento.registerClient({
+          tipoPersona,
+          tipoDocumento: String(datosFormulario.get("tipoDocumento") || ""),
+          numeroDocumento: String(
+            datosFormulario.get("numeroDocumento") || "",
+          ).trim(),
+          nombres: esPersonaNatural
+            ? String(datosFormulario.get("nombres") || "").trim()
+            : null,
+          apellidos: esPersonaNatural
+            ? String(datosFormulario.get("apellidos") || "").trim()
+            : null,
+          razonSocial: esPersonaNatural
+            ? null
+            : String(datosFormulario.get("razonSocial") || "").trim(),
+          correo: String(datosFormulario.get("correo") || "").trim() || null,
+          telefono:
+            String(datosFormulario.get("telefono") || "").trim() || null,
+        });
+        clienteId = cliente.clienteId;
+      }
 
       for (const { articulo, condiciones, modalidad } of seleccionados) {
         const solicitud = await apiFinanciamiento.createRequest({
-          clienteId: cliente.clienteId,
+          clienteId,
           productoId: Number(articulo.id),
           productoFinanciamientoId: modalidad!.id,
           montoSolicitado: Number(condiciones.monto),
@@ -181,17 +247,32 @@ export function RegistrationPage() {
       }
 
       const primerSeleccionado = seleccionados[0];
+      const resultadoPrecalificacionSimulado =
+        Math.random() < 0.5 ? "precalificado" : "no_precalificado";
       sessionStorage.setItem(
         "tech-store-evaluation-result",
         JSON.stringify({
-          resultadoPrecalificacion:
-            solicitudesCreadas[0]?.resultadoPrecalificacion || "pendiente",
+          resultadoPrecalificacion: resultadoPrecalificacionSimulado,
+          resultadoSimulado: true,
           producto: primerSeleccionado.articulo.name,
           montoSolicitado: primerSeleccionado.condiciones.monto,
           plazoMeses: primerSeleccionado.condiciones.plazo,
           solicitudIds: solicitudesCreadas.map(
             (solicitudCreada) => solicitudCreada.id,
           ),
+          resumenSolicitud: {
+            productos: carrito.map((articulo) => ({
+              nombre: articulo.name,
+              cantidad: Math.max(1, articulo.quantity),
+              precioUnitario: articulo.price,
+              subtotal: articulo.price * Math.max(1, articulo.quantity),
+              moneda: articulo.currency || "PEN",
+            })),
+            subtotalPorMoneda,
+            creditoSeleccionado: creditoSeleccionado || null,
+            totalSolicitado,
+            moneda: monedaSolicitud,
+          },
         }),
       );
       navegar("/evaluation");
@@ -215,86 +296,145 @@ export function RegistrationPage() {
       <header className="registration-heading">
         <h1>Registrar solicitud de financiamiento</h1>
         <p>
-          Completa los datos del cliente y las condiciones para cada producto.
+          Revisa el resumen de tu carrito y confirma tus datos para enviar la
+          solicitud.
         </p>
       </header>
       <form className="registration-form" onSubmit={enviarSolicitud}>
         <fieldset>
           <legend>Datos del cliente</legend>
-          <div className="registration-fields">
-            <label>
-              Tipo de persona
-              <select
-                name="tipoPersona"
-                value={tipoPersona}
-                onChange={(evento) => setTipoPersona(evento.target.value)}
-              >
-                <option value="NATURAL">Persona natural</option>
-                <option value="JURIDICA">Persona jurídica</option>
-              </select>
-            </label>
-            <label>
-              Tipo de documento
-              <select name="tipoDocumento">
-                {tipoPersona === "NATURAL" ? (
-                  <>
-                    <option value="DNI">DNI</option>
-                    <option value="CE">Carné de extranjería</option>
-                    <option value="PASAPORTE">Pasaporte</option>
-                  </>
-                ) : (
-                  <option value="RUC">RUC</option>
-                )}
-              </select>
-            </label>
-            <label>
-              Número de documento
-              <input
-                name="numeroDocumento"
-                type="text"
-                maxLength={11}
-                required
-              />
-            </label>
-            {tipoPersona === "NATURAL" ? (
-              <>
-                <label>
-                  Nombres
-                  <input name="nombres" type="text" maxLength={100} required />
-                </label>
-                <label>
-                  Apellidos
-                  <input
-                    name="apellidos"
-                    type="text"
-                    maxLength={100}
-                    required
-                  />
-                </label>
-              </>
-            ) : (
+          {cargandoPerfil ? (
+            <p role="status">Consultando los datos de tu cuenta...</p>
+          ) : errorPerfil ? (
+            <p role="alert">{errorPerfil}</p>
+          ) : perfilCliente ? (
+            <div className="customer-profile-summary">
+              <span>Usaremos los datos asociados a tu cuenta.</span>
+              <strong>
+                {perfilCliente.tipoPersona === "NATURAL"
+                  ? `${perfilCliente.nombres || ""} ${perfilCliente.apellidos || ""}`.trim()
+                  : perfilCliente.razonSocial}
+              </strong>
+              <span>
+                {perfilCliente.tipoDocumento} {perfilCliente.numeroDocumento}
+              </span>
+              {perfilCliente.correo && <span>{perfilCliente.correo}</span>}
+              {perfilCliente.telefono && <span>{perfilCliente.telefono}</span>}
+            </div>
+          ) : (
+            <div className="registration-fields">
               <label>
-                Razón social
+                Tipo de persona
+                <select
+                  name="tipoPersona"
+                  value={tipoPersona}
+                  onChange={(evento) => setTipoPersona(evento.target.value)}
+                >
+                  <option value="NATURAL">Persona natural</option>
+                  <option value="JURIDICA">Persona jurídica</option>
+                </select>
+              </label>
+              <label>
+                Tipo de documento
+                <select name="tipoDocumento">
+                  {tipoPersona === "NATURAL" ? (
+                    <>
+                      <option value="DNI">DNI</option>
+                      <option value="CE">Carné de extranjería</option>
+                      <option value="PASAPORTE">Pasaporte</option>
+                    </>
+                  ) : (
+                    <option value="RUC">RUC</option>
+                  )}
+                </select>
+              </label>
+              <label>
+                Número de documento
                 <input
-                  name="razonSocial"
+                  name="numeroDocumento"
                   type="text"
-                  maxLength={150}
+                  maxLength={11}
                   required
                 />
               </label>
-            )}
-            <label>
-              Correo electrónico
-              <input name="correo" type="email" maxLength={254} />
-            </label>
-            <label>
-              Teléfono
-              <input name="telefono" type="tel" maxLength={20} />
-            </label>
-          </div>
+              {tipoPersona === "NATURAL" ? (
+                <>
+                  <label>
+                    Nombres
+                    <input
+                      name="nombres"
+                      type="text"
+                      maxLength={100}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Apellidos
+                    <input
+                      name="apellidos"
+                      type="text"
+                      maxLength={100}
+                      required
+                    />
+                  </label>
+                </>
+              ) : (
+                <label>
+                  Razón social
+                  <input
+                    name="razonSocial"
+                    type="text"
+                    maxLength={150}
+                    required
+                  />
+                </label>
+              )}
+              <label>
+                Correo electrónico
+                <input name="correo" type="email" maxLength={254} />
+              </label>
+              <label>
+                Teléfono
+                <input name="telefono" type="tel" maxLength={20} />
+              </label>
+            </div>
+          )}
         </fieldset>
         <section className="application-products-section">
-          <h2>Productos y condiciones</h2>
+          <h2>Resumen de la solicitud</h2>
+          {creditoSeleccionado && (
+            <article className="selected-bank-credit">
+              <div>
+                <span>Crédito bancario seleccionado</span>
+                <h3>{creditoSeleccionado.nombre}</h3>
+                <p>{creditoSeleccionado.entidad}</p>
+              </div>
+              <div className="selected-bank-credit-terms">
+                <span>Monto a financiar</span>
+                <strong>
+                  {formatearMoneda(
+                    creditoSeleccionado.monto,
+                    creditoSeleccionado.moneda,
+                  )}
+                </strong>
+                <p>
+                  {creditoSeleccionado.tipoTasa === "TEA"
+                    ? "Tasa efectiva anual (TEA)"
+                    : creditoSeleccionado.tipoTasa === "TNA"
+                      ? "Tasa nominal anual (TNA)"
+                      : creditoSeleccionado.tipoTasa}
+                  : {Number(creditoSeleccionado.tasaAnual).toFixed(2)}% anual
+                </p>
+                <p>
+                  Plazo disponible: {creditoSeleccionado.plazoMinimoMeses} a{" "}
+                  {creditoSeleccionado.plazoMaximoMeses} meses
+                </p>
+              </div>
+            </article>
+          )}
+          <h3 className="application-products-subtitle">
+            Productos solicitados
+          </h3>
           <div className="application-products">
             {carrito.length === 0 && (
               <p>
@@ -303,118 +443,43 @@ export function RegistrationPage() {
               </p>
             )}
             {mensaje && <p role="status">{mensaje}</p>}
-            {carrito.map((articulo) => {
-              const modalidades = opcionesFinanciamiento.filter(
-                (modalidad) =>
-                  String(modalidad.productoId) === String(articulo.id),
-              );
-              const condiciones = condicionesPorProducto[String(articulo.id)];
-              const modalidad =
-                modalidades.find(
-                  (opcion) => opcion.id === condiciones?.idFinanciamiento,
-                ) || modalidades[0];
-              return (
-                <article className="application-product" key={articulo.id}>
-                  <h3>{articulo.name}</h3>
-                  <p>
-                    Precio referencial:{" "}
-                    {formatearMoneda(articulo.price, articulo.currency)} ×{" "}
-                    {Math.max(1, articulo.quantity)}
-                  </p>
-                  {!modalidades.length ? (
-                    <p>
-                      Este producto no tiene modalidades de financiamiento
-                      activas.
-                    </p>
-                  ) : (
-                    <>
-                      <label>
-                        Modalidad
-                        <select
-                          value={condiciones?.idFinanciamiento || modalidad.id}
-                          onChange={(evento) =>
-                            cambiarCondiciones(
-                              articulo,
-                              Number(evento.target.value),
-                            )
-                          }
-                        >
-                          {modalidades.map((opcion) => (
-                            <option key={opcion.id} value={opcion.id}>
-                              {opcion.tipoTasa}{" "}
-                              {Number(opcion.tasaAnual).toFixed(2)}% anual
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <p className="financing-summary">
-                        {modalidad.tipoTasa}{" "}
-                        {Number(modalidad.tasaAnual).toFixed(2)}% anual; monto{" "}
-                        {formatearMoneda(
-                          Number(modalidad.montoMinimo),
-                          articulo.currency,
-                        )}{" "}
-                        a{" "}
-                        {formatearMoneda(
-                          Number(modalidad.montoMaximo),
-                          articulo.currency,
-                        )}
-                        ; plazo {modalidad.plazoMinimoMeses} a{" "}
-                        {modalidad.plazoMaximoMeses} meses.
-                      </p>
-                      <div className="registration-fields">
-                        <label>
-                          Monto solicitado
-                          <input
-                            type="number"
-                            min={modalidad.montoMinimo}
-                            max={modalidad.montoMaximo}
-                            step="0.01"
-                            required
-                            value={condiciones?.monto || ""}
-                            onChange={(evento) =>
-                              setCondicionesPorProducto((anteriores) => ({
-                                ...anteriores,
-                                [String(articulo.id)]: {
-                                  ...condiciones,
-                                  idFinanciamiento: modalidad.id,
-                                  monto: evento.target.value,
-                                  plazo:
-                                    condiciones?.plazo ||
-                                    String(modalidad.plazoMinimoMeses),
-                                },
-                              }))
-                            }
-                          />
-                        </label>
-                        <label>
-                          Plazo (meses)
-                          <input
-                            type="number"
-                            min={modalidad.plazoMinimoMeses}
-                            max={modalidad.plazoMaximoMeses}
-                            step="1"
-                            required
-                            value={condiciones?.plazo || ""}
-                            onChange={(evento) =>
-                              setCondicionesPorProducto((anteriores) => ({
-                                ...anteriores,
-                                [String(articulo.id)]: {
-                                  ...condiciones,
-                                  idFinanciamiento: modalidad.id,
-                                  monto: condiciones?.monto || "",
-                                  plazo: evento.target.value,
-                                },
-                              }))
-                            }
-                          />
-                        </label>
-                      </div>
-                    </>
-                  )}
-                </article>
-              );
-            })}
+            {carrito.map((articulo) => (
+              <article className="application-product" key={articulo.id}>
+                <h3>
+                  {articulo.name}
+                  {articulo.quantity > 1 && ` × ${articulo.quantity}`}
+                </h3>
+                <div className="application-product-summary">
+                  <span>Precio unitario</span>
+                  <strong>
+                    {formatearMoneda(articulo.price, articulo.currency)}
+                  </strong>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="application-summary-breakdown" aria-live="polite">
+            <div className="application-summary-line">
+              <span>Subtotal de productos</span>
+              <strong>{subtotalFormateado}</strong>
+            </div>
+            <div className="application-summary-line">
+              <span>Monto a financiar</span>
+              <strong>
+                {creditoSeleccionado
+                  ? formatearMoneda(
+                      creditoSeleccionado.monto,
+                      creditoSeleccionado.moneda,
+                    )
+                  : "Sin crédito seleccionado"}
+              </strong>
+            </div>
+            <div className="application-summary-total">
+              <span>Total solicitado</span>
+              <strong>
+                {formatearMoneda(totalSolicitado, monedaSolicitud)}
+              </strong>
+            </div>
           </div>
         </section>
         <label className="request-consent">
@@ -431,6 +496,8 @@ export function RegistrationPage() {
             type="submit"
             disabled={
               enviando ||
+              cargandoPerfil ||
+              Boolean(errorPerfil) ||
               !carrito.length ||
               carrito.some(
                 (articulo) =>

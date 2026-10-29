@@ -246,10 +246,10 @@ FROM (VALUES
     'img/productos/vehiculos/carro_cafeteria.jpg'
 ),
 
--- CAPITAL DE TRABAJO -> Banco A y Banco B
-('20600000003', 'Capital de trabajo', 'Capital de trabajo S/ 10,000', 'Financiamiento de capital de trabajo por S/ 10,000', 10000.00, 'img/productos/financiamiento/capital_10000_soles.jpg'),
-    ('20600000003', 'Capital de trabajo', 'Capital de trabajo S/ 25,000', 'Financiamiento de capital de trabajo por S/ 25,000', 25000.00, 'img/productos/financiamiento/capital_25000_soles.jpg'),
-    ('20600000004', 'Capital de trabajo', 'Capital de trabajo S/ 50,000', 'Financiamiento de capital de trabajo por S/ 50,000', 50000.00, 'img/productos/financiamiento/capital_50000_soles.jpg')
+-- CREDITO BANCARIO -> Banco A y Banco B
+('20600000003', 'Crédito bancario', 'Crédito bancario S/ 10,000', 'Financiamiento de crédito bancario por S/ 10,000', 10000.00, 'img/productos/financiamiento/capital_10000_soles.jpg'),
+    ('20600000003', 'Crédito bancario', 'Crédito bancario S/ 25,000', 'Financiamiento de crédito bancario por S/ 25,000', 25000.00, 'img/productos/financiamiento/capital_25000_soles.jpg'),
+    ('20600000004', 'Crédito bancario', 'Crédito bancario S/ 50,000', 'Financiamiento de crédito bancario por S/ 50,000', 50000.00, 'img/productos/financiamiento/capital_50000_soles.jpg')
 ) AS datos(ruc_aliado, nombre_categoria, nombre_producto, descripcion, precio_lista, imagen_url)
 JOIN aliado a    ON a.numero_documento = datos.ruc_aliado
 JOIN categoria c ON c.nombre = datos.nombre_categoria;
@@ -269,7 +269,7 @@ VALUES (
     ),
     (
         'CAPITAL_TRABAJO',
-        'Capital de trabajo',
+        'Crédito bancario',
         1
     ) ON CONFLICT (codigo) DO NOTHING;
 
@@ -367,10 +367,10 @@ FROM (VALUES
     9800.00
 ),
 
--- CAPITAL DE TRABAJO (CAPITAL_TRABAJO)
-('Capital de trabajo S/ 10,000', 'CAPITAL_TRABAJO', 'TNA', 22.00,  3, 18,  1000.00,  10000.00),
-    ('Capital de trabajo S/ 25,000', 'CAPITAL_TRABAJO', 'TNA', 22.00,  3, 24,  3000.00,  25000.00),
-    ('Capital de trabajo S/ 50,000', 'CAPITAL_TRABAJO', 'TNA', 21.00,  3, 36,  5000.00,  50000.00)
+-- CREDITO BANCARIO (CAPITAL_TRABAJO)
+('Crédito bancario S/ 10,000', 'CAPITAL_TRABAJO', 'TNA', 22.00,  3, 18,  1000.00,  10000.00),
+    ('Crédito bancario S/ 25,000', 'CAPITAL_TRABAJO', 'TNA', 22.00,  3, 24,  3000.00,  25000.00),
+    ('Crédito bancario S/ 50,000', 'CAPITAL_TRABAJO', 'TNA', 21.00,  3, 36,  5000.00,  50000.00)
 ) AS datos(nombre_producto, codigo_financiamiento, tipo_tasa, tasa_anual,
     plazo_minimo, plazo_maximo, monto_minimo, monto_maximo)
 JOIN producto p ON p.nombre = datos.nombre_producto

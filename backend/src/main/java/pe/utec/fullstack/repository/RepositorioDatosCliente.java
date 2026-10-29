@@ -14,4 +14,6 @@ public interface RepositorioDatosCliente extends JpaRepository<EntidadCliente, I
     Optional<EntidadCliente> findByTipoDocumentoAndNumeroDocumento(
             pe.utec.fullstack.domain.business.TipoDocumento tipoDocumento,
             String numeroDocumento);
+
+    Optional<EntidadCliente> findFirstByUsuarioIdAndAlta(Integer usuarioId, Short alta);
 }

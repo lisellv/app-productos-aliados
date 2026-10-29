@@ -880,6 +880,18 @@ section.promesa h2 {
   border-left-color: #b74242;
 }
 
+.evaluation-result[data-result="precalificado"] .thanks-label,
+.evaluation-result[data-result="precalificado"] h1 {
+  color: #287a48;
+  font-weight: 700;
+}
+
+.evaluation-result[data-result="no_precalificado"] .thanks-label,
+.evaluation-result[data-result="no_precalificado"] h1 {
+  color: #b74242;
+  font-weight: 700;
+}
+
 .evaluation-result h1 {
   border-bottom: 0;
   padding-bottom: 0;
@@ -897,6 +909,71 @@ section.promesa h2 {
 
 .evaluation-details[hidden] {
   display: none;
+}
+
+.evaluation-request-summary {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--borde-suave);
+}
+
+.evaluation-request-summary h2 {
+  margin: 0 0 12px;
+  color: var(--azul-profundo);
+  font-size: 20px;
+}
+
+.evaluation-summary-products {
+  display: grid;
+}
+
+.evaluation-summary-product,
+.evaluation-summary-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--borde-suave);
+}
+
+.evaluation-summary-product>div {
+  display: grid;
+  gap: 4px;
+}
+
+.evaluation-summary-product small {
+  color: var(--texto-suave);
+}
+
+.evaluation-summary-product strong,
+.evaluation-summary-line strong {
+  color: var(--texto-principal);
+  text-align: right;
+}
+
+.evaluation-summary-credit {
+  display: grid;
+  gap: 6px;
+  padding: 14px 0;
+  color: var(--texto-suave);
+}
+
+.evaluation-summary-credit strong {
+  color: var(--texto-principal);
+}
+
+.evaluation-summary-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 14px;
+  font-weight: 600;
+}
+
+.evaluation-summary-total strong {
+  color: #155eef;
+  font-size: 20px;
 }
 
 .attention-channels {
@@ -1138,6 +1215,54 @@ section.promesa h2 {
   margin: 0;
   color: var(--texto-principal);
   font-size: 18px;
+}
+
+.application-product-summary {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 16px;
+  color: var(--texto-suave);
+}
+
+.application-product-summary strong {
+  color: var(--texto-principal);
+  text-align: right;
+}
+
+.application-summary-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-top: 1px solid var(--borde-suave);
+  color: var(--texto-principal);
+  font-weight: 600;
+}
+
+.application-summary-breakdown {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.application-summary-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--texto-suave);
+}
+
+.application-summary-line strong {
+  color: var(--texto-principal);
+  text-align: right;
+}
+
+.application-summary-total strong {
+  color: #155eef;
+  font-size: 20px;
 }
 
 .application-product>p:not(.financing-summary) {

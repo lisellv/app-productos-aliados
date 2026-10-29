@@ -32,7 +32,7 @@ public class AuthController {
             return new AuthResponse(
                     jwtService.generateSpecialToken(authRequest.getUserName(), authentication));
         } else {
-            throw new UsernameNotFoundException("Invalid user request!");
+            throw new UsernameNotFoundException("La solicitud de usuario no es válida.");
         }
     }
 }

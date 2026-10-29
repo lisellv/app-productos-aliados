@@ -39,3 +39,12 @@ export function formatearMoneda(monto: number, moneda = "PEN"): string {
     return `${moneda} ${monto.toFixed(2)}`;
   }
 }
+
+export function calcularTotalSolicitado(
+  subtotalProductos: number,
+  montoCredito: number,
+): number {
+  return subtotalProductos > montoCredito
+    ? subtotalProductos + montoCredito
+    : montoCredito;
+}

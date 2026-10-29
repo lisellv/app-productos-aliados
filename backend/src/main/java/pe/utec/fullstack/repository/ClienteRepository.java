@@ -33,6 +33,11 @@ public class ClienteRepository {
                 .map(this.mapper::toDomain);
     }
 
+    public Optional<Cliente> buscarPorUsuarioId(Integer usuarioId) {
+        return this.clienteJpaRepository.findFirstByUsuarioIdAndAlta(usuarioId, (short) 1)
+                .map(this.mapper::toDomain);
+    }
+
     public List<Cliente> listarActivos() {
         return this.clienteJpaRepository.findByAlta((short) 1).stream()
                 .map(this.mapper::toDomain)

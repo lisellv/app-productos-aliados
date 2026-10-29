@@ -23,10 +23,7 @@ export function LoginPage() {
     } catch (errorCapturado) {
       const mensajeError =
         errorCapturado instanceof Error ? errorCapturado.message : "";
-      if (
-        errorCapturado instanceof TypeError ||
-        mensajeError === "Failed to fetch"
-      ) {
+      if (errorCapturado instanceof TypeError) {
         setMensaje(
           "No se pudo conectar con el servidor. Verifica que Spring Boot esté activo.",
         );

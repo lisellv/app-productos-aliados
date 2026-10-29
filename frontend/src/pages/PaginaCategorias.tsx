@@ -1,12 +1,25 @@
 import { useEffect, useState } from "react";
+import { apiAliados } from "../api/aliadosApi";
 import { apiCategorias } from "../api/categoriasApi";
 import { apiProductos } from "../api/productosApi";
 import { useCart } from "../context/ContextoCarrito";
+import type { AliadoCatalogo } from "../types/aliado";
 import type { Category, Product } from "../types/modelos";
 import { formatearMoneda } from "../utils/carrito";
 
+function esCategoriaCreditoBancario(nombre: string): boolean {
+  return (
+    nombre
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLocaleLowerCase("es") === "credito bancario"
+  );
+}
+
 export function CategoriesPage() {
   const { agregarArticulo } = useCart();
+  const [aliados, setAliados] = useState<AliadoCatalogo[]>([]);
   const [categorias, setCategorias] = useState<Category[]>([]);
   const [productos, setProductos] = useState<Product[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("all");
@@ -15,7 +28,6 @@ export function CategoriesPage() {
   const [cargando, setCargando] = useState(true);
   const [mensajeError, setMensajeError] = useState("");
   const [intentoCarga, setIntentoCarga] = useState(0);
-  const [cantidades, setCantidades] = useState<Record<string, number>>({});
   const [mensajesProducto, setMensajesProducto] = useState<
     Record<string, string>
   >({});
@@ -24,11 +36,16 @@ export function CategoriesPage() {
     let solicitudVigente = true;
     setCargando(true);
     setMensajeError("");
-    Promise.all([apiCategorias.getAll(), apiProductos.getAll()])
-      .then(([categoriasCargadas, productosCargados]) => {
+    Promise.all([
+      apiCategorias.getAll(),
+      apiProductos.getAll(),
+      apiAliados.getCatalogo().catch(() => []),
+    ])
+      .then(([categoriasCargadas, productosCargados, aliadosCargados]) => {
         if (!solicitudVigente) return;
         setCategorias(categoriasCargadas);
         setProductos(productosCargados);
+        setAliados(aliadosCargados);
       })
       .catch(() => {
         if (!solicitudVigente) return;
@@ -44,9 +61,18 @@ export function CategoriesPage() {
     };
   }, [intentoCarga]);
 
+  const categoriasOcultas = new Set(
+    categorias
+      .filter((categoria) => esCategoriaCreditoBancario(categoria.nombre))
+      .map((categoria) => String(categoria.id)),
+  );
+  const categoriasVisibles = categorias.filter(
+    (categoria) => !categoriasOcultas.has(String(categoria.id)),
+  );
   const productosVisibles = productos.filter((producto) => {
     const precio = Number(producto.precioLista) || 0;
     return (
+      !categoriasOcultas.has(String(producto.categoriaId)) &&
       (categoriaSeleccionada === "all" ||
         String(producto.categoriaId) === categoriaSeleccionada) &&
       (precioMinimo === "" || precio >= Number(precioMinimo)) &&
@@ -56,21 +82,13 @@ export function CategoriesPage() {
 
   function agregarProducto(producto: Product) {
     const claveProducto = String(producto.id);
-    const cantidad = cantidades[claveProducto] || 0;
-    if (cantidad < 1) {
-      setMensajesProducto((anteriores) => ({
-        ...anteriores,
-        [claveProducto]: "Selecciona una cantidad primero.",
-      }));
-      return;
-    }
     agregarArticulo({
       id: producto.id,
       name: producto.nombre || "Producto",
       price: Number(producto.precioLista) || 0,
       currency: producto.moneda || "PEN",
       image: producto.imagenUrl || "/img/productos/vehiculos/camion.jpg",
-      quantity: cantidad,
+      quantity: 1,
     });
     setMensajesProducto((anteriores) => ({
       ...anteriores,
@@ -88,7 +106,7 @@ export function CategoriesPage() {
           onChange={(evento) => setCategoriaSeleccionada(evento.target.value)}
         >
           <option value="all">Todas las categorías</option>
-          {categorias.map((categoria) => (
+          {categoriasVisibles.map((categoria) => (
             <option key={categoria.id} value={categoria.id}>
               {categoria.nombre}
             </option>
@@ -136,7 +154,9 @@ export function CategoriesPage() {
           !mensajeError &&
           productosVisibles.map((producto) => {
             const claveProducto = String(producto.id);
-            const cantidad = cantidades[claveProducto] || 0;
+            const aliado = aliados.find(
+              (elemento) => String(elemento.id) === String(producto.aliadoId),
+            );
             return (
               <article className="producto" key={claveProducto}>
                 <img
@@ -152,53 +172,10 @@ export function CategoriesPage() {
                     producto.moneda || "PEN",
                   )}
                 </p>
+                <p className="product-seller">
+                  Vendido por {aliado?.razonSocial || "Aliado comercial"}
+                </p>
                 <div className="product-actions">
-                  <div
-                    className="cantidad"
-                    aria-label={`Cantidad de ${producto.nombre}`}
-                  >
-                    <button
-                      type="button"
-                      aria-label="Reducir cantidad"
-                      disabled={cantidad === 0}
-                      onClick={() =>
-                        setCantidades((anteriores) => ({
-                          ...anteriores,
-                          [claveProducto]: Math.max(0, cantidad - 1),
-                        }))
-                      }
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={cantidad}
-                      aria-label={`Cantidad de ${producto.nombre}`}
-                      onChange={(evento) =>
-                        setCantidades((anteriores) => ({
-                          ...anteriores,
-                          [claveProducto]: Math.max(
-                            0,
-                            Math.floor(Number(evento.target.value) || 0),
-                          ),
-                        }))
-                      }
-                    />
-                    <button
-                      type="button"
-                      aria-label="Aumentar cantidad"
-                      onClick={() =>
-                        setCantidades((anteriores) => ({
-                          ...anteriores,
-                          [claveProducto]: cantidad + 1,
-                        }))
-                      }
-                    >
-                      +
-                    </button>
-                  </div>
                   <button
                     className="add-to-cart-btn"
                     type="button"

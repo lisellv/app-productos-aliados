@@ -1,12 +1,42 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { formatearMoneda } from "../utils/carrito";
+
+interface ProductoEvaluado {
+  nombre: string;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+  moneda: string;
+}
+
+interface CreditoEvaluado {
+  nombre: string;
+  entidad: string;
+  monto: number;
+  moneda: string;
+  tipoTasa: string;
+  tasaAnual: number;
+  plazoMinimoMeses: number;
+  plazoMaximoMeses: number;
+}
+
+interface ResumenSolicitud {
+  productos: ProductoEvaluado[];
+  subtotalPorMoneda: Record<string, number>;
+  creditoSeleccionado: CreditoEvaluado | null;
+  totalSolicitado: number;
+  moneda: string;
+}
 
 interface ResultadoEvaluacion {
   resultadoPrecalificacion?: string;
   resultado?: string;
+  resultadoSimulado?: boolean;
   producto?: string;
   montoSolicitado?: string | number;
   plazoMeses?: string | number;
+  resumenSolicitud?: ResumenSolicitud;
 }
 
 function leerResultadoEvaluacion(): ResultadoEvaluacion {
@@ -70,6 +100,12 @@ export function EvaluationPage() {
   const producto = parametros.get("producto") || resultadoEvaluacion.producto;
   const monto = parametros.get("monto") || resultadoEvaluacion.montoSolicitado;
   const plazo = parametros.get("plazo") || resultadoEvaluacion.plazoMeses;
+  const resumenSolicitud = resultadoEvaluacion.resumenSolicitud;
+  const subtotalFormateado = Object.entries(
+    resumenSolicitud?.subtotalPorMoneda || {},
+  )
+    .map(([moneda, importe]) => formatearMoneda(importe, moneda))
+    .join(" · ");
 
   return (
     <main className="confirmation evaluation-page">
@@ -82,7 +118,82 @@ export function EvaluationPage() {
           <span className="thanks-label">{etiqueta}</span>
           <h1>{titulo}</h1>
           <p className="confirmation-message">{mensaje}</p>
-          {(producto || monto || plazo) && (
+          {resultadoEvaluacion.resultadoSimulado && (
+            <p className="evaluation-simulation-note" role="note">
+              Resultado aleatorio de demostración; no representa una aprobación
+              real de crédito.
+            </p>
+          )}
+          {resumenSolicitud && (
+            <section className="evaluation-request-summary">
+              <h2>Resumen de la solicitud</h2>
+              <div className="evaluation-summary-products">
+                {resumenSolicitud.productos.map((articulo) => (
+                  <div
+                    className="evaluation-summary-product"
+                    key={`${articulo.nombre}-${articulo.moneda}`}
+                  >
+                    <div>
+                      <span>
+                        {articulo.nombre}
+                        {articulo.cantidad > 1 && ` × ${articulo.cantidad}`}
+                      </span>
+                      <small>
+                        Precio unitario:{" "}
+                        {formatearMoneda(
+                          articulo.precioUnitario,
+                          articulo.moneda,
+                        )}
+                      </small>
+                    </div>
+                    <strong>
+                      {formatearMoneda(articulo.subtotal, articulo.moneda)}
+                    </strong>
+                  </div>
+                ))}
+              </div>
+              <div className="evaluation-summary-line">
+                <span>Subtotal de productos</span>
+                <strong>{subtotalFormateado || formatearMoneda(0)}</strong>
+              </div>
+              {resumenSolicitud.creditoSeleccionado && (
+                <div className="evaluation-summary-credit">
+                  <strong>Crédito bancario</strong>
+                  <span>
+                    {resumenSolicitud.creditoSeleccionado.nombre} ·{" "}
+                    {resumenSolicitud.creditoSeleccionado.entidad}
+                  </span>
+                  <span>
+                    Monto a financiar:{" "}
+                    {formatearMoneda(
+                      resumenSolicitud.creditoSeleccionado.monto,
+                      resumenSolicitud.creditoSeleccionado.moneda,
+                    )}
+                  </span>
+                  <span>
+                    {resumenSolicitud.creditoSeleccionado.tipoTasa}:{" "}
+                    {Number(
+                      resumenSolicitud.creditoSeleccionado.tasaAnual,
+                    ).toFixed(2)}
+                    % anual · plazo disponible:{" "}
+                    {resumenSolicitud.creditoSeleccionado.plazoMinimoMeses} a{" "}
+                    {resumenSolicitud.creditoSeleccionado.plazoMaximoMeses}{" "}
+                    meses
+                  </span>
+                </div>
+              )}
+              <div className="evaluation-summary-total">
+                <span>Total solicitado</span>
+                <strong>
+                  {formatearMoneda(
+                    resumenSolicitud.totalSolicitado,
+                    resumenSolicitud.moneda,
+                  )}
+                </strong>
+              </div>
+            </section>
+          )}
+          {!resumenSolicitud && (producto || monto || plazo) && (
             <div className="evaluation-details">
               {producto && <span>Producto: {producto}</span>}
               {monto && <span>Monto solicitado: {monto}</span>}
@@ -96,8 +207,8 @@ export function EvaluationPage() {
             <article>
               <h3>Asesoría del aliado comercial</h3>
               <p>
-                Comunícate con el aliado del producto para consultar
-                alternativas y resolver tus dudas.
+                El banco se comunicará contigo para iniciar la evaluación de tu
+                solicitud y coordinar el proceso de desembolso.
               </p>
             </article>
             <article>

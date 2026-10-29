@@ -16,10 +16,18 @@ async function apiRequest(path, options = {}) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...requestOptions,
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...requestOptions,
+      headers,
+    });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new TypeError("No se pudo conectar con el servidor.");
+    }
+    throw error;
+  }
 
   if (response.status === 401) {
     localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -28,7 +36,7 @@ async function apiRequest(path, options = {}) {
   if (!response.ok) {
     const message = await response.text();
     throw new Error(
-      message || `API request failed with status ${response.status}`,
+      message || `La solicitud no pudo completarse (HTTP ${response.status}).`,
     );
   }
 

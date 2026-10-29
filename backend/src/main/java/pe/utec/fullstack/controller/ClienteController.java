@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import pe.utec.fullstack.controller.auth.UserInfoDetails;
 import pe.utec.fullstack.controller.request.CreateClienteRequest;
 import pe.utec.fullstack.controller.request.UpdateClienteRequest;
 import pe.utec.fullstack.domain.ClienteService;
@@ -44,6 +47,13 @@ public class ClienteController {
         return this.clienteService.obtenerPorId(id);
     }
 
+    @GetMapping("/mi-perfil")
+    public ResponseEntity<Cliente> obtenerMiPerfil(@AuthenticationPrincipal UserInfoDetails usuario) {
+        return this.clienteService.buscarPorUsuarioId(usuario.getId())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Cliente crear(@Valid @RequestBody CreateClienteRequest request) {
@@ -52,8 +62,10 @@ public class ClienteController {
 
     @PostMapping("/registro")
     @ResponseStatus(HttpStatus.OK)
-    public Map<String, Integer> registrar(@Valid @RequestBody CreateClienteRequest request) {
-        Cliente cliente = this.clienteService.registrarOEncontrar(this.mapper.toDomain(request));
+    public Map<String, Integer> registrar(@Valid @RequestBody CreateClienteRequest request,
+            @AuthenticationPrincipal UserInfoDetails usuario) {
+        Cliente cliente = this.clienteService.registrarOEncontrar(
+                this.mapper.toDomain(request), usuario == null ? null : usuario.getId());
         return Map.of("clienteId", cliente.getId());
     }
 

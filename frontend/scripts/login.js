@@ -19,7 +19,7 @@ loginForm.addEventListener("submit", async (event) => {
     await login(username, password);
     window.location.href = "home.html";
   } catch (error) {
-    if (error instanceof TypeError || error.message === "Failed to fetch") {
+    if (error instanceof TypeError) {
       loginMessage.textContent =
         "No se pudo conectar con el servidor. Verifica que Spring Boot esté activo y permita CORS.";
     } else if (

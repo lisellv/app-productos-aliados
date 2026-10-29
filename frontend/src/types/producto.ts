@@ -3,6 +3,7 @@ export interface Product {
   nombre: string;
   precioLista: number;
   moneda?: string;
+  aliadoId?: number | string | null;
   categoriaId?: number | string | null;
   imagenUrl?: string | null;
   descripcion?: string | null;

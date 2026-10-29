@@ -9,6 +9,9 @@ import { solicitarApi } from "./clienteHttp";
 import { unwrapList, type ListResponse } from "./respuestaLista";
 
 export const apiFinanciamiento = {
+  obtenerMiPerfil() {
+    return solicitarApi<ClientRecord | null>("/api/clientes/mi-perfil");
+  },
   async getOptions() {
     return unwrapList(
       await solicitarApi<ListResponse<FinancingOption>>(
@@ -20,7 +23,6 @@ export const apiFinanciamiento = {
   registerClient(datosCliente: ClientRegistrationRequest) {
     return solicitarApi<{ clienteId: number }>("/api/clientes/registro", {
       method: "POST",
-      omitirAutenticacion: true,
       cuerpo: JSON.stringify(datosCliente),
     });
   },

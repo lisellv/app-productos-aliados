@@ -3,6 +3,7 @@ package pe.utec.fullstack.domain;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -34,16 +35,42 @@ public class ClienteService {
     }
 
     public Cliente registrarOEncontrar(Cliente cliente) {
+        return this.registrarOEncontrar(cliente, null);
+    }
+
+    public Cliente registrarOEncontrar(Cliente cliente, Integer usuarioId) {
         this.validarConsistenciaPersona(cliente);
+        Optional<Cliente> perfilUsuario = usuarioId == null
+                ? Optional.empty()
+                : this.clienteRepository.buscarPorUsuarioId(usuarioId);
+        if (perfilUsuario.isPresent()) {
+            return perfilUsuario.get();
+        }
+
         var existente = this.clienteRepository.buscarPorDocumento(
                 cliente.getTipoDocumento(), cliente.getNumeroDocumento());
         if (existente.isPresent()) {
-            if (!Objects.equals(existente.get().getAlta(), (short) 1)) {
+            Cliente clienteExistente = existente.get();
+            if (!Objects.equals(clienteExistente.getAlta(), (short) 1)) {
                 throw new IllegalArgumentException("El cliente asociado a este documento está inactivo");
             }
-            return existente.get();
+            if (usuarioId != null && clienteExistente.getUsuarioId() != null
+                    && !Objects.equals(clienteExistente.getUsuarioId(), usuarioId)) {
+                throw new IllegalArgumentException("Este documento ya está asociado a otra cuenta");
+            }
+            if (usuarioId != null && clienteExistente.getUsuarioId() == null) {
+                clienteExistente.setUsuarioId(usuarioId);
+                clienteExistente.setActualizadoAt(OffsetDateTime.now());
+                return this.clienteRepository.guardar(clienteExistente);
+            }
+            return clienteExistente;
         }
+        cliente.setUsuarioId(usuarioId);
         return this.crear(cliente);
+    }
+
+    public Optional<Cliente> buscarPorUsuarioId(Integer usuarioId) {
+        return this.clienteRepository.buscarPorUsuarioId(usuarioId);
     }
 
     public Cliente obtenerPorId(Integer id) {

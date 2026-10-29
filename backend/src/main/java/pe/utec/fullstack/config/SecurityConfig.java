@@ -45,6 +45,9 @@ public class SecurityConfig {
                                                                 "/api/categorias", "/api/categorias/**",
                                                                 "/api/categories", "/api/categories/**")
                                                 .permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/aliados/catalogo").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/clientes/mi-perfil")
+                                                .authenticated()
                                                 .requestMatchers(HttpMethod.GET, "/api/productos-financiamiento/**")
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.POST, "/api/clientes/registro").permitAll()
