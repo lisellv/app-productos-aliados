@@ -25,6 +25,11 @@ public class UsuarioRepository {
     public Optional<Usuario> buscarPorId(Integer id) {
         return this.usuarioJpaRepository.findById(id).map(this.mapper::toDomain);
     }
+
+    public boolean existePorCorreo(String correoElectronico) {
+        return this.usuarioJpaRepository.existsByCorreoElectronico(correoElectronico);
+    }
+
     public List<Usuario> listarActivos() {
         return this.usuarioJpaRepository.findByAlta((short) 1).stream()
                 .map(this.mapper::toDomain)

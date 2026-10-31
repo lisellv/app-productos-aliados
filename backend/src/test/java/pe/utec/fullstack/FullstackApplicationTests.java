@@ -1,6 +1,7 @@
 package pe.utec.fullstack;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import pe.utec.fullstack.config.JwtService;
 import pe.utec.fullstack.repository.EntidadRol;
-import pe.utec.fullstack.repository.RepositorioDatosRol;
 import pe.utec.fullstack.repository.EntidadUsuario;
+import pe.utec.fullstack.repository.RepositorioDatosRol;
 import pe.utec.fullstack.repository.RepositorioDatosUsuario;
 
 @Testcontainers
@@ -35,6 +37,9 @@ class FullstackApplicationTests {
 
 	@Autowired
 	RepositorioDatosUsuario usuarioRepository;
+
+	@Autowired
+	JwtService jwtService;
 
 	@Container
 	static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
@@ -92,6 +97,42 @@ class FullstackApplicationTests {
 
 		var jwt = new com.fasterxml.jackson.databind.ObjectMapper().readTree(token).get("token").asText();
 		org.junit.jupiter.api.Assertions.assertEquals(3, jwt.split("\\.").length);
+	}
+
+	@Test
+	void publicRegistrationCreatesOnlyAUserAccount() throws Exception {
+		String correoElectronico = "registro-" + UUID.randomUUID() + "@example.invalid";
+		String password = "clave-segura-123";
+		String solicitudRegistro = "{\"correoElectronico\":\"" + correoElectronico
+				+ "\",\"password\":\"" + password + "\"}";
+
+		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+				.post("/api/auth/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(solicitudRegistro))
+				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isCreated());
+
+		var respuestaLogin = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+				.post("/api/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"userName\":\"" + correoElectronico + "\",\"password\":\"" + password + "\"}"))
+				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+				.andReturn()
+				.getResponse()
+				.getContentAsString();
+		var token = new com.fasterxml.jackson.databind.ObjectMapper().readTree(respuestaLogin).get("token").asText();
+		var roles = this.jwtService.extractRoles(token).stream()
+				.map(org.springframework.security.core.GrantedAuthority::getAuthority)
+				.toList();
+
+		org.junit.jupiter.api.Assertions.assertTrue(roles.contains("ROLE_USUARIO"));
+		org.junit.jupiter.api.Assertions.assertFalse(roles.contains("ROLE_ADMIN"));
+		org.junit.jupiter.api.Assertions.assertFalse(roles.contains("ROLE_ALIADO"));
+		mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+				.post("/api/auth/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(solicitudRegistro))
+				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isBadRequest());
 	}
 
 }

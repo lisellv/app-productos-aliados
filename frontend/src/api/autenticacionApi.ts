@@ -1,4 +1,7 @@
-import type { LoginRequest } from "../types/autenticacion";
+import type {
+  LoginRequest,
+  RegistroUsuarioRequest,
+} from "../types/autenticacion";
 import { solicitarApi } from "./clienteHttp";
 import { CLAVE_TOKEN_AUTENTICACION } from "./instanciaAxios";
 
@@ -9,6 +12,13 @@ interface RespuestaTokenAutenticacion {
 }
 
 export const apiAutenticacion = {
+  registrarUsuario(solicitud: RegistroUsuarioRequest) {
+    return solicitarApi<void>("/api/auth/register", {
+      method: "POST",
+      omitirAutenticacion: true,
+      cuerpo: JSON.stringify(solicitud),
+    });
+  },
   async login(solicitud: LoginRequest): Promise<void> {
     const respuesta = await solicitarApi<string | RespuestaTokenAutenticacion>(
       "/api/auth/login",
