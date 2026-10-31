@@ -201,6 +201,7 @@ export function RegistrationPage() {
     setEnviando(true);
     const solicitudesCreadas: Array<{
       id: number | string;
+      estado?: string;
       resultadoPrecalificacion?: string;
     }> = [];
     try {
@@ -249,6 +250,14 @@ export function RegistrationPage() {
       const primerSeleccionado = seleccionados[0];
       const resultadoPrecalificacionSimulado =
         Math.random() < 0.5 ? "precalificado" : "no_precalificado";
+      await Promise.all(
+        solicitudesCreadas.map((solicitud) =>
+          apiFinanciamiento.updateRequest(solicitud.id, {
+            estado: solicitud.estado || "precalificado",
+            resultadoPrecalificacion: resultadoPrecalificacionSimulado,
+          }),
+        ),
+      );
       sessionStorage.setItem(
         "tech-store-evaluation-result",
         JSON.stringify({

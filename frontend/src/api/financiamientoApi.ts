@@ -32,6 +32,21 @@ export const apiFinanciamiento = {
       cuerpo: JSON.stringify(datosSolicitud),
     });
   },
+  updateRequest(
+    id: number | string,
+    datosSolicitud: {
+      estado: string;
+      resultadoPrecalificacion: string;
+    },
+  ) {
+    return solicitarApi<FinancingRequest>(
+      `/api/solicitudes-financiamiento/${id}`,
+      {
+        method: "PUT",
+        cuerpo: JSON.stringify(datosSolicitud),
+      },
+    );
+  },
   getRequests() {
     return solicitarApi<FinancingRequest[]>("/api/solicitudes-financiamiento");
   },
