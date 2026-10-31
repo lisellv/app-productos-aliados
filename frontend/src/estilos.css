@@ -502,6 +502,280 @@ body {
     color: var(--texto-principal);
 }
 
+.ally-page {
+    min-height: 65vh;
+    padding: 48px clamp(20px, 5vw, 72px) 72px;
+    background: var(--fondo-superficie);
+    color: var(--texto-principal);
+}
+
+.ally-page-inner {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+}
+
+.ally-page-heading,
+.ally-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.ally-page-heading {
+    margin-bottom: 32px;
+}
+
+.ally-page-heading h1 {
+    margin: 0 0 8px;
+    font-size: 2rem;
+}
+
+.ally-page-heading p:last-child {
+    margin: 0;
+    color: var(--texto-suave);
+}
+
+.ally-eyebrow {
+    margin: 0 0 8px;
+    color: var(--azul-principal);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.ally-catalog-link {
+    flex: 0 0 auto;
+    padding: 11px 16px;
+    border-radius: 6px;
+    background: var(--azul-principal);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.ally-details,
+.ally-products {
+    margin-top: 28px;
+}
+
+.ally-section-heading {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--borde-suave);
+}
+
+.ally-section-heading h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.ally-section-heading>span {
+    color: var(--texto-suave);
+    font-size: 0.9rem;
+}
+
+.ally-state {
+    color: #17613a !important;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.ally-state--inactivo {
+    color: #8d3c25 !important;
+}
+
+.ally-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 18px 28px;
+    margin: 0;
+    padding: 24px 0 8px;
+}
+
+.ally-info-grid>div {
+    min-width: 0;
+}
+
+.ally-info-grid dt {
+    margin-bottom: 6px;
+    color: var(--texto-suave);
+    font-size: 0.82rem;
+}
+
+.ally-info-grid dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-weight: 700;
+}
+
+.ally-products-table-wrap {
+    margin-top: 18px;
+    overflow-x: auto;
+    border: 1px solid var(--borde-suave);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.ally-products-table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.ally-products-table-wrap th,
+.ally-products-table-wrap td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--borde-suave);
+    vertical-align: top;
+}
+
+.ally-products-table-wrap th {
+    color: var(--texto-suave);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.ally-products-table-wrap tr:last-child td {
+    border-bottom: 0;
+}
+
+.ally-message {
+    color: #8d3c25;
+}
+
+.ally-product-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.ally-add-product,
+.ally-save-product {
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--azul-principal);
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.ally-product-form {
+    margin-top: 16px;
+    padding: 20px;
+    border: 1px solid var(--borde-suave);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.ally-product-form-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.ally-product-form-heading h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.ally-product-form-heading button,
+.ally-product-actions button {
+    padding: 6px 9px;
+    border: 1px solid var(--borde-suave);
+    border-radius: 5px;
+    background: #fff;
+    color: var(--texto-principal);
+    font: inherit;
+    cursor: pointer;
+}
+
+.ally-product-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 18px;
+    margin-bottom: 18px;
+}
+
+.ally-product-form-grid label {
+    display: grid;
+    gap: 6px;
+    color: var(--texto-principal);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.ally-product-form-grid input:not([type="checkbox"]),
+.ally-product-form-grid select,
+.ally-product-form-grid textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 11px;
+    border: 1px solid var(--borde-suave);
+    border-radius: 5px;
+    background: #fff;
+    color: var(--texto-principal);
+    font: inherit;
+    font-weight: 400;
+}
+
+.ally-product-form-grid textarea {
+    resize: vertical;
+}
+
+.ally-product-form-grid .ally-product-form-wide {
+    grid-column: 1 / -1;
+}
+
+.ally-product-checkbox {
+    display: flex !important;
+    align-items: center;
+    gap: 9px !important;
+}
+
+.ally-product-checkbox input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+.ally-save-product:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.ally-product-actions {
+    display: flex;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.ally-products-table-wrap {
+    margin-top: 12px;
+}
+
+@media (max-width: 640px) {
+    .ally-page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ally-products-table-wrap table {
+        min-width: 820px;
+    }
+
+    .ally-product-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ally-product-form-grid .ally-product-form-wide {
+        grid-column: auto;
+    }
+}
+
 .selected-bank-credit {
     display: flex;
     align-items: center;

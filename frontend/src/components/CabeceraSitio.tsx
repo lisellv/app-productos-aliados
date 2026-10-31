@@ -3,7 +3,8 @@ import { useAuth } from "../context/ContextoAutenticacion";
 import { CartIcon } from "./IconoCarrito";
 
 export function SiteHeader() {
-  const { estaAutenticado, puedeAdministrar, cerrarSesion } = useAuth();
+  const { estaAutenticado, esAliado, puedeAdministrar, cerrarSesion } =
+    useAuth();
 
   return (
     <>
@@ -29,6 +30,7 @@ export function SiteHeader() {
           {estaAutenticado ? (
             <>
               <Link to="/requests">Solicitudes</Link>
+              {esAliado && <Link to="/ally">Mi aliado</Link>}
               {puedeAdministrar && <Link to="/admin">Administración</Link>}
               <button
                 type="button"

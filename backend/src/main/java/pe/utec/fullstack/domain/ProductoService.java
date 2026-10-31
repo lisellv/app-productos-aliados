@@ -1,13 +1,13 @@
 package pe.utec.fullstack.domain;
 
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.stereotype.Service;
-import pe.utec.fullstack.domain.business.Producto;
-
-import pe.utec.fullstack.repository.ProductoRepository;
-
 import java.time.OffsetDateTime;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import jakarta.persistence.EntityNotFoundException;
+import pe.utec.fullstack.domain.business.Producto;
+import pe.utec.fullstack.repository.ProductoRepository;
 
 @Service
 public class ProductoService {
@@ -38,12 +38,35 @@ public class ProductoService {
         return this.productoRepository.listarActivos();
     }
 
+    public List<Producto> listarPorAliado(Integer aliadoId) {
+        return this.productoRepository.listarPorAliado(aliadoId);
+    }
+
     public List<Producto> obtenerActivosPorIds(List<Integer> ids) {
         return this.productoRepository.buscarActivosPorIds(ids);
     }
 
     public Producto actualizar(Integer id, Producto producto) {
         Producto existente = this.obtenerPorId(id);
+        return this.aplicarActualizacion(existente, producto);
+    }
+
+    public Producto actualizarPorAliado(Integer id, Integer aliadoId, Producto producto) {
+        Producto existente = this.productoRepository.buscarPorIdYAliado(id, aliadoId)
+                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado."));
+        return this.aplicarActualizacion(existente, producto);
+    }
+
+    public void eliminarPorAliado(Integer id, Integer aliadoId) {
+        Producto existente = this.productoRepository.buscarPorIdYAliado(id, aliadoId)
+                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado."));
+        existente.setAlta((short) 0);
+        existente.setEstado("inactivo");
+        existente.setActualizadoAt(OffsetDateTime.now());
+        this.productoRepository.guardar(existente);
+    }
+
+    private Producto aplicarActualizacion(Producto existente, Producto producto) {
         existente.setCategoriaId(producto.getCategoriaId());
         existente.setNombre(producto.getNombre());
         existente.setDescripcion(producto.getDescripcion());

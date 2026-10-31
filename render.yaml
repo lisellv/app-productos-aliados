@@ -36,3 +36,6 @@ services:
       - type: rewrite
         source: /admin
         destination: /index.html
+      - type: rewrite
+        source: /ally
+        destination: /index.html

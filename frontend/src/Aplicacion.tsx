@@ -4,6 +4,7 @@ import { AdminRoute } from "./components/RutaAdministracion";
 import { ProtectedRoute } from "./components/RutaProtegida";
 import { AuthProvider } from "./context/ContextoAutenticacion";
 import { CartProvider } from "./context/ContextoCarrito";
+import { AllyPage } from "./pages/PaginaAliado";
 import { CartPage } from "./pages/PaginaCarrito";
 import { CategoriesPage } from "./pages/PaginaCategorias";
 import { AccountPage } from "./pages/PaginaCuenta";
@@ -33,6 +34,7 @@ export default function App() {
               <Route path="/cart" element={<CartPage />} />
               <Route path="/cart.html" element={<CartPage />} />
               <Route element={<ProtectedRoute />}>
+                <Route path="/ally" element={<AllyPage />} />
                 <Route path="/requests/new" element={<RegistrationPage />} />
                 <Route
                   path="/registro-solicitud.html"

@@ -27,6 +27,11 @@ public class ProductoRepository {
         return this.productoJpaRepository.findById(id).map(this.mapper::toDomain);
     }
 
+    public Optional<Producto> buscarPorIdYAliado(Integer id, Integer aliadoId) {
+        return this.productoJpaRepository.findByIdAndAliadoIdAndAlta(id, aliadoId, (short) 1)
+                .map(this.mapper::toDomain);
+    }
+
     public List<Producto> buscarActivosPorIds(List<Integer> ids) {
         if (ids.isEmpty())
             return List.of();
@@ -37,6 +42,12 @@ public class ProductoRepository {
 
     public List<Producto> listarActivos() {
         return this.productoJpaRepository.findByAlta((short) 1).stream()
+                .map(this.mapper::toDomain)
+                .toList();
+    }
+
+    public List<Producto> listarPorAliado(Integer aliadoId) {
+        return this.productoJpaRepository.findByAliadoIdAndAlta(aliadoId, (short) 1).stream()
                 .map(this.mapper::toDomain)
                 .toList();
     }

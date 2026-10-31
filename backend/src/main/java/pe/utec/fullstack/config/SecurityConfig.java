@@ -51,6 +51,8 @@ public class SecurityConfig {
                                                                 "/api/categories", "/api/categories/**")
                                                 .permitAll()
                                                 .requestMatchers(HttpMethod.GET, "/api/aliados/catalogo").permitAll()
+                                                .requestMatchers("/api/aliados/mi-perfil/**")
+                                                .hasAuthority("ROLE_ALIADO")
                                                 .requestMatchers(HttpMethod.GET, "/api/clientes/mi-perfil")
                                                 .authenticated()
                                                 .requestMatchers(HttpMethod.GET, "/api/productos-financiamiento/**")

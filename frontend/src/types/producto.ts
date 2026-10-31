@@ -3,10 +3,12 @@ export interface Product {
   nombre: string;
   precioLista: number;
   moneda?: string;
+  incluyeIgv?: boolean;
   aliadoId?: number | string | null;
   categoriaId?: number | string | null;
   imagenUrl?: string | null;
   descripcion?: string | null;
+  estado?: "activo" | "inactivo";
 }
 
 export interface CreateProductRequest {

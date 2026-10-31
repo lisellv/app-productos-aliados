@@ -14,6 +14,7 @@ interface EstadoAutenticacion {
   usuario: JwtClaims | null;
   estaAutenticado: boolean;
   esAdministrador: boolean;
+  esAliado: boolean;
   puedeAdministrar: boolean;
   iniciarSesion: (nombreUsuario: string, clave: string) => Promise<void>;
   cerrarSesion: () => void;
@@ -62,9 +63,8 @@ export function AuthProvider({ children: contenido }: { children: ReactNode }) {
         usuario: afirmaciones,
         estaAutenticado: Boolean(afirmaciones),
         esAdministrador: rolesUsuario.includes("ROLE_ADMIN"),
-        puedeAdministrar: rolesUsuario.some((rol) =>
-          ["ROLE_ADMIN", "ROLE_ALIADO"].includes(rol),
-        ),
+        esAliado: rolesUsuario.includes("ROLE_ALIADO"),
+        puedeAdministrar: rolesUsuario.includes("ROLE_ADMIN"),
         iniciarSesion: (nombreUsuario, clave) =>
           apiAutenticacion.login({ userName: nombreUsuario, password: clave }),
         cerrarSesion: () => {
